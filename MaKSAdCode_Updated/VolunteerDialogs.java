@@ -1,7 +1,3 @@
-/**
- *
- * @author hayaa
- */
 package maksadpro;
 
 import javax.swing.*;
@@ -16,12 +12,13 @@ import java.util.List;
 
 public class VolunteerDialogs {
 
-    // shared colors
     private static final Color COLOR_BG   = Color.decode("#FFFADD");
     private static final Color COLOR_DARK = Color.decode("#263717");
     private static final Color COLOR_CARD = Color.decode("#74835A");
 
-    // event row from the events table
+    // ======================== MODELS ========================
+
+    // يمثل حدث واحد من جدول events
     static class DBEvent {
         int eventId;
         String name;
@@ -37,6 +34,7 @@ public class VolunteerDialogs {
                 LocalTime startTime, LocalTime endTime,
                 String location, String description,
                 String status, int volunteers) {
+
             this.eventId = eventId;
             this.name = name;
             this.date = date;
@@ -54,7 +52,7 @@ public class VolunteerDialogs {
         }
     }
 
-    // upcoming participation that is still UNSET (used for cancel)
+    // عنصر واحد من المشاركات المستقبلية بحالة UNSET
     static class PendingParticipation {
         String eventName;
         LocalDate eventDate;
@@ -70,7 +68,7 @@ public class VolunteerDialogs {
         }
     }
 
-    // participation row used for the history table
+    // صف واحد في جدول تاريخ المشاركات
     static class ParticipationRow {
         String eventName;
         LocalDate eventDate;
@@ -85,13 +83,16 @@ public class VolunteerDialogs {
         }
     }
 
-    // EventDialog (Request to Join)
+    // ========================================================
+    //                 1) EventDialog – Request to Join
+    // ========================================================
+
     static class EventDialog extends JDialog {
+
         private final Volunteer parent;
         private DefaultListModel<DBEvent> model = new DefaultListModel<>();
         private JList<DBEvent> list;
 
-        // detail labels for the selected event
         private JLabel lblName = new JLabel("-");
         private JLabel lblDate = new JLabel("-");
         private JLabel lblTime = new JLabel("-");
@@ -109,7 +110,7 @@ public class VolunteerDialogs {
             getContentPane().setBackground(COLOR_BG);
             setLayout(new BorderLayout(10, 10));
 
-            // top header bar
+            // ===== top bar =====
             JPanel top = new JPanel(new BorderLayout());
             top.setBackground(COLOR_DARK);
             top.setBorder(new EmptyBorder(8, 18, 8, 18));
@@ -120,14 +121,13 @@ public class VolunteerDialogs {
             top.add(title, BorderLayout.CENTER);
             add(top, BorderLayout.NORTH);
 
-            // load list of events from DB
+            // ===== list on the left =====
             loadEventsFromDB();
             list = new JList<>(model);
             list.setSelectionBackground(Color.decode("#B0BE97"));
             list.setSelectionForeground(Color.BLACK);
             list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-            // when the user selects an event, update the right details panel
             list.addListSelectionListener(e -> {
                 if (!e.getValueIsAdjusting()) {
                     DBEvent ev = list.getSelectedValue();
@@ -135,7 +135,6 @@ public class VolunteerDialogs {
                 }
             });
 
-            // left side: list of events
             JPanel leftPanel = new JPanel(new BorderLayout());
             leftPanel.setOpaque(false);
             leftPanel.setBorder(new EmptyBorder(10, 12, 10, 6));
@@ -149,7 +148,7 @@ public class VolunteerDialogs {
             leftPanel.add(listScroll, BorderLayout.CENTER);
             leftPanel.setPreferredSize(new Dimension(230, 0));
 
-            // right side: card with full event details
+            // ===== details card on the right =====
             JPanel detailsCard = new JPanel();
             detailsCard.setBackground(COLOR_CARD);
             detailsCard.setBorder(new EmptyBorder(14, 18, 14, 18));
@@ -158,7 +157,6 @@ public class VolunteerDialogs {
             txtDescription.setLineWrap(true);
             txtDescription.setWrapStyleWord(true);
             txtDescription.setEditable(false);
-            txtDescription.setFont(new Font("SansSerif", Font.PLAIN, 12));
 
             detailsCard.add(makeDetailRow("Name:", lblName));
             detailsCard.add(makeDetailRow("Date:", lblDate));
@@ -166,16 +164,13 @@ public class VolunteerDialogs {
             detailsCard.add(makeDetailRow("Location:", lblLocation));
             detailsCard.add(makeDetailRow("Status:", lblStatus));
             detailsCard.add(makeDetailRow("Volunteers:", lblVolunteers));
-            detailsCard.add(Box.createVerticalStrut(8));
 
             JLabel descLabel = new JLabel("Description:");
             descLabel.setForeground(Color.WHITE);
             descLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
             detailsCard.add(descLabel);
-            detailsCard.add(Box.createVerticalStrut(4));
 
             JScrollPane descScroll = new JScrollPane(txtDescription);
-            descScroll.setPreferredSize(new Dimension(320, 120));
             detailsCard.add(descScroll);
 
             JPanel center = new JPanel(new BorderLayout());
@@ -184,7 +179,7 @@ public class VolunteerDialogs {
             center.add(detailsCard, BorderLayout.CENTER);
             add(center, BorderLayout.CENTER);
 
-            // bottom buttons (Close / Join)
+            // ===== bottom buttons =====
             JPanel bottom = new JPanel(new BorderLayout());
             bottom.setOpaque(false);
             bottom.setBorder(new EmptyBorder(4, 18, 10, 18));
@@ -204,27 +199,23 @@ public class VolunteerDialogs {
             bottom.add(btnRow, BorderLayout.EAST);
             add(bottom, BorderLayout.SOUTH);
 
-            // auto-select first event if list is not empty
             if (!model.isEmpty()) list.setSelectedIndex(0);
 
             setVisible(true);
         }
 
-        // one line of label + value inside the card
         private JPanel makeDetailRow(String labelText, JLabel valueLabel) {
             JPanel row = new JPanel(new BorderLayout(4, 4));
             row.setOpaque(false);
             JLabel lbl = new JLabel(labelText);
             lbl.setFont(new Font("SansSerif", Font.BOLD, 12));
             lbl.setForeground(Color.WHITE);
-            valueLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
             valueLabel.setForeground(Color.WHITE);
             row.add(lbl, BorderLayout.WEST);
             row.add(valueLabel, BorderLayout.CENTER);
             return row;
         }
 
-        // update the right panel with the selected event information
         private void showEventDetails(DBEvent ev) {
             lblName.setText(ev.name);
             lblDate.setText(ev.date.toString());
@@ -236,22 +227,26 @@ public class VolunteerDialogs {
             txtDescription.setCaretPosition(0);
         }
 
-        // load all eligible events that the volunteer can join
+        /**
+         * تحميل الأحداث المتاحة للانضمام:
+         * - تاريخها اليوم أو بعده
+         * - هذا المتطوع لم ينضم لها سابقًا (status <> 'CANCELED')
+         */
         private void loadEventsFromDB() {
             model.clear();
             String sql = """
-                    SELECT event_id, name, event_date, start_time, end_time,
-                           location, description, status, volunteers
-                    FROM events
-                    WHERE status = 'APPROVED'
-                      AND event_date >= CURDATE()
-                      AND event_date NOT IN (
-                          SELECT event_date
-                          FROM volunteer_participations
-                          WHERE volunteer_id = ?
-                            AND status <> 'CANCELED'
+                    SELECT e.event_id, e.name, e.event_date, e.start_time, e.end_time,
+                           e.location, e.description, e.status, e.volunteers
+                    FROM events e
+                    WHERE e.event_date >= CURDATE()
+                      AND NOT EXISTS (
+                          SELECT 1
+                          FROM volunteer_participations p
+                          WHERE p.volunteer_id = ?
+                            AND p.event_name = e.name
+                            AND p.status <> 'CANCELED'
                       )
-                    ORDER BY event_date
+                    ORDER BY e.event_date, e.start_time
                     """;
 
             try (Connection conn = DBConnection.getConnection();
@@ -273,15 +268,17 @@ public class VolunteerDialogs {
                             rs.getInt("volunteers")
                     ));
                 }
+
             } catch (Exception ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(parent,
-                        "Error loading events:\n" + ex.getMessage());
                 parent.appendLogLine("Error loading events: " + ex.getMessage());
             }
         }
 
-        // insert the selected event into volunteer_participations and update events.volunteers
+        /**
+         * إدخال سطر في volunteer_participations + تحديث عداد volunteers في events
+         * بدون استخدام event_id داخل جدول المشاركات (حسب السكيمة).
+         */
         private void joinSelectedEvent() {
             DBEvent ev = list.getSelectedValue();
             if (ev == null) return;
@@ -290,7 +287,7 @@ public class VolunteerDialogs {
                     INSERT INTO volunteer_participations
                     (volunteer_id, volunteer_name, event_name, event_date,
                      role, check_in, check_out, hours, status)
-                    VALUES (?, ?, ?, ?, ?, NULL, NULL, NULL, 'UNSET')
+                    VALUES (?, ?, ?, ?, 'Volunteer', NULL, NULL, NULL, 'UNSET')
                     """;
 
             String updateEventSql = """
@@ -300,19 +297,23 @@ public class VolunteerDialogs {
                     """;
 
             try (Connection conn = DBConnection.getConnection()) {
+
                 conn.setAutoCommit(false);
 
-                PreparedStatement ps1 = conn.prepareStatement(insertSql);
-                ps1.setInt(1, parent.getVolunteerId());
-                ps1.setString(2, parent.getVolunteerName());
-                ps1.setString(3, ev.name);
-                ps1.setDate(4, java.sql.Date.valueOf(ev.date));
-                ps1.setString(5, "Volunteer");
-                ps1.executeUpdate();
+                // 1) add participation
+                try (PreparedStatement ps1 = conn.prepareStatement(insertSql)) {
+                    ps1.setInt(1, parent.getVolunteerId());
+                    ps1.setString(2, parent.getVolunteerName());
+                    ps1.setString(3, ev.name);
+                    ps1.setDate(4, java.sql.Date.valueOf(ev.date));
+                    ps1.executeUpdate();
+                }
 
-                PreparedStatement ps2 = conn.prepareStatement(updateEventSql);
-                ps2.setInt(1, ev.eventId);
-                ps2.executeUpdate();
+                // 2) increment volunteers count in events
+                try (PreparedStatement ps2 = conn.prepareStatement(updateEventSql)) {
+                    ps2.setInt(1, ev.eventId);
+                    ps2.executeUpdate();
+                }
 
                 conn.commit();
 
@@ -322,14 +323,15 @@ public class VolunteerDialogs {
 
             } catch (Exception ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(parent,
-                        "Error joining event:\n" + ex.getMessage());
                 parent.appendLogLine("Error joining event: " + ex.getMessage());
             }
         }
     }
 
-    // CancelJoinDialog 
+    // ========================================================
+    //           2) CancelJoinDialog – Cancel upcoming join
+    // ========================================================
+
     static class CancelJoinDialog extends JDialog {
         private final Volunteer parent;
         private DefaultListModel<PendingParticipation> model = new DefaultListModel<>();
@@ -367,7 +369,7 @@ public class VolunteerDialogs {
             scroll.setBorder(BorderFactory.createEmptyBorder(10, 18, 10, 18));
             add(scroll, BorderLayout.CENTER);
 
-            // bottom buttons: (Close \ Cancel Selected)
+            // bottom buttons
             JPanel bottom = new JPanel(new BorderLayout());
             bottom.setOpaque(false);
             bottom.setBorder(new EmptyBorder(4, 18, 10, 18));
@@ -390,7 +392,7 @@ public class VolunteerDialogs {
             setVisible(true);
         }
 
-        // load all upcoming UNSET participations for this volunteer
+        // all upcoming UNSET participations for this volunteer
         private void loadPending() {
             model.clear();
             String sql = """
@@ -422,7 +424,7 @@ public class VolunteerDialogs {
             }
         }
 
-        // remove the selected pending participation and decrement volunteers counter
+        // delete participation row + decrement volunteers counter
         private void cancelSelected() {
             PendingParticipation p = list.getSelectedValue();
             if (p == null) return;
@@ -439,21 +441,24 @@ public class VolunteerDialogs {
             String decSql = """
                     UPDATE events
                     SET volunteers = GREATEST(volunteers - 1, 0)
-                    WHERE name = ?
+                    WHERE name = ? AND event_date = ?
                     """;
 
             try (Connection conn = DBConnection.getConnection()) {
                 conn.setAutoCommit(false);
 
-                PreparedStatement ps1 = conn.prepareStatement(deleteSql);
-                ps1.setInt(1, parent.getVolunteerId());
-                ps1.setString(2, p.eventName);
-                ps1.setDate(3, java.sql.Date.valueOf(p.eventDate));
-                ps1.executeUpdate();
+                try (PreparedStatement ps1 = conn.prepareStatement(deleteSql)) {
+                    ps1.setInt(1, parent.getVolunteerId());
+                    ps1.setString(2, p.eventName);
+                    ps1.setDate(3, java.sql.Date.valueOf(p.eventDate));
+                    ps1.executeUpdate();
+                }
 
-                PreparedStatement ps2 = conn.prepareStatement(decSql);
-                ps2.setString(1, p.eventName);
-                ps2.executeUpdate();
+                try (PreparedStatement ps2 = conn.prepareStatement(decSql)) {
+                    ps2.setString(1, p.eventName);
+                    ps2.setDate(2, java.sql.Date.valueOf(p.eventDate));
+                    ps2.executeUpdate();
+                }
 
                 conn.commit();
 
@@ -470,7 +475,10 @@ public class VolunteerDialogs {
         }
     }
 
-    // ParticipationTable (history)
+    // ========================================================
+    //         3) ParticipationTable – Participation history
+    // ========================================================
+
     static class ParticipationTable extends JFrame {
         private final Volunteer parent;
 
@@ -536,7 +544,7 @@ public class VolunteerDialogs {
             setVisible(true);
         }
 
-        // load all participations (joined events) for this volunteer
+        // load all participations for this volunteer (history)
         private List<ParticipationRow> loadParticipationRows(int volunteerId) {
             List<ParticipationRow> list = new ArrayList<>();
 
@@ -546,7 +554,9 @@ public class VolunteerDialogs {
                            e.start_time,
                            e.end_time
                     FROM volunteer_participations p
-                    JOIN events e ON p.event_name = e.name
+                    JOIN events e
+                      ON p.event_name = e.name
+                     AND p.event_date = e.event_date
                     WHERE p.volunteer_id = ?
                     ORDER BY p.event_date DESC
                     """;
@@ -575,7 +585,7 @@ public class VolunteerDialogs {
             return list;
         }
 
-        // local button
+        // local button style (يشبه أزرار البيرنت)
         private JButton createMainButton(String text) {
             JButton btn = new JButton(text) {
                 @Override
