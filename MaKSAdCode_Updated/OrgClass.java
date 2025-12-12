@@ -4,6 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.io.File;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.event.ActionListener;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 import com.toedter.calendar.JDateChooser;
 import com.github.lgooddatepicker.components.TimePicker;
@@ -79,11 +85,14 @@ public class OrgClass extends JFrame {
         sidebar.add(makeSidebarButton("Add Event", e -> addEvent()));
         sidebar.add(Box.createVerticalStrut(20));
 
-        sidebar.add(makeSidebarButton("Manage Volunteers", e -> new ParticipationView(organizerId)));
+        sidebar.add(makeSidebarButton("Manage Volunteers", e -> new ParticipationApprovalView(organizerId)));
         sidebar.add(Box.createVerticalStrut(20));
 
         sidebar.add(makeSidebarButton("Show All Events", e -> showMyEventsTable()));
         sidebar.add(Box.createVerticalGlue());
+
+        sidebar.add(makeSidebarButton("Archive", e -> new ArchiveClass(organizerId)));
+        sidebar.add(Box.createVerticalStrut(20));
 
         sidebar.add(makeSidebarButton("Logout", e -> {
             dispose();
@@ -105,7 +114,6 @@ public class OrgClass extends JFrame {
         headerPanel.add(eventCountLabel, BorderLayout.WEST);
 
         content.add(headerPanel, BorderLayout.NORTH);
-
         JPanel cardsPanel = new JPanel();
         cardsPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 18, 18));
         cardsPanel.setBackground(MAIN_BG);
@@ -278,7 +286,10 @@ public class OrgClass extends JFrame {
 
         btn.setMaximumSize(new Dimension(200, 45));
         btn.setForeground(Color.WHITE);
-        btn.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+        // ⬇️ هنا صغّرنا الخط بشكل منطقي (Manage Volunteers يطلع أرتب)
+        btn.setFont(new Font("SansSerif", Font.BOLD, 12));
+
         btn.setContentAreaFilled(false);
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
@@ -302,7 +313,6 @@ public class OrgClass extends JFrame {
 
             ps.setInt(1, organizerId);
             ResultSet rs = ps.executeQuery();
-
             while (rs.next()) {
                 eventDetails.put(
                         rs.getString("name"),
@@ -323,7 +333,7 @@ public class OrgClass extends JFrame {
     }
 
     // ============================================================
-    //               ⭐⭐   ADD EVENT (UPDATED)   ⭐⭐
+    //               ⭐️⭐️   ADD EVENT (UPDATED)   ⭐️⭐️
     // ============================================================
 
     private void addEvent() {
@@ -340,7 +350,7 @@ public class OrgClass extends JFrame {
 
         TimePickerSettings tps = new TimePickerSettings();
         TimePicker startPicker = new TimePicker(tps);
-        TimePicker endPicker = new TimePicker(tps);
+        TimePicker endPicker   = new TimePicker(tps);
 
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(MAIN_BG);
@@ -382,11 +392,11 @@ public class OrgClass extends JFrame {
         if (result != JOptionPane.OK_OPTION) return;
 
         try {
-            String name = nameField.getText().trim();
-            String category = categoryBox.getSelectedItem().toString();
-            String location = locationField.getText().trim();
+            String name        = nameField.getText().trim();
+            String category    = categoryBox.getSelectedItem().toString();
+            String location    = locationField.getText().trim();
             String description = descField.getText().trim();
-            int volunteers = Integer.parseInt(volunteersField.getText().trim());
+            int volunteers     = Integer.parseInt(volunteersField.getText().trim());
 
             if (dateChooser.getDate() == null) {
                 JOptionPane.showMessageDialog(this, "Please select a date.");
@@ -400,11 +410,7 @@ public class OrgClass extends JFrame {
             java.sql.Date sqlDate = new java.sql.Date(dateChooser.getDate().getTime());
 
             String startStr = startPicker.getTime() + ":00";
-            String endStr = endPicker.getTime() + ":00";
-
-            // --------------------------------------------------------
-            //          ⭐⭐ DUPLICATE CHECK BEFORE INSERT ⭐⭐
-            // --------------------------------------------------------
+            String endStr   = endPicker.getTime() + ":00";
 
             try (Connection conn = DBConnection.getConnection()) {
 
@@ -428,7 +434,7 @@ public class OrgClass extends JFrame {
                 }
 
                 String insert = """
-                        INSERT INTO events 
+                        INSERT INTO events
                         (organizer_id, name, category, location,
                          volunteers, event_date, start_time, end_time, description)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -461,6 +467,7 @@ public class OrgClass extends JFrame {
         }
     }
 
+    // =================== NEW STYLE FOR "MY EVENTS" WINDOW ===================
     private void showMyEventsTable() {
 
         String sql = """
@@ -503,6 +510,13 @@ public class OrgClass extends JFrame {
             }
 
             JTable table = new JTable(model);
+            table.setRowHeight(24);
+            table.setGridColor(Color.LIGHT_GRAY);
+            table.setBackground(Color.WHITE);
+            javax.swing.table.JTableHeader header = table.getTableHeader();
+            header.setBackground(COLOR_BG);
+            header.setForeground(Color.decode("#1E1E1E"));
+            header.setFont(new Font("Serif", Font.BOLD, 13));
 
             JComboBox<String> statusCombo = new JComboBox<>(EVENT_STATUS);
             table.getColumnModel()
@@ -510,9 +524,35 @@ public class OrgClass extends JFrame {
                     .setCellEditor(new DefaultCellEditor(statusCombo));
 
             JScrollPane scroll = new JScrollPane(table);
+            scroll.setBorder(BorderFactory.createEmptyBorder());
 
-            JButton saveBtn = new JButton("Save Changes");
-            JButton closeBtn = new JButton("Close");
+            JPanel topBar = new JPanel(new BorderLayout());
+            topBar.setBackground(SIDEBAR_COLOR);
+            topBar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            JLabel title = new JLabel("My Events");
+            title.setForeground(Color.WHITE);
+            title.setFont(new Font("SansSerif", Font.BOLD, 16));
+
+            JPanel rightButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            rightButtons.setOpaque(false);
+
+            JButton saveBtn  = makeTopButton("Save Changes");
+            JButton closeBtn = makeTopButton("Close");
+
+            rightButtons.add(saveBtn);
+            rightButtons.add(closeBtn);
+
+            topBar.add(title, BorderLayout.WEST);
+            topBar.add(rightButtons, BorderLayout.EAST);
+
+            JFrame f = new JFrame("My Events");
+            f.setSize(900, 450);
+            f.setLayout(new BorderLayout());
+            f.getContentPane().setBackground(MAIN_BG);
+            f.add(topBar, BorderLayout.NORTH);
+            f.add(scroll, BorderLayout.CENTER);
+            f.setLocationRelativeTo(this);
 
             saveBtn.addActionListener(e -> {
                 String updateSql = """
@@ -526,7 +566,7 @@ public class OrgClass extends JFrame {
 
                     for (int i = 0; i < model.getRowCount(); i++) {
                         String eventName = model.getValueAt(i, 0).toString();
-                        String status = model.getValueAt(i, 7).toString();
+                        String status    = model.getValueAt(i, 7).toString();
 
                         ups.setString(1, status);
                         ups.setInt(2, organizerId);
@@ -552,21 +592,8 @@ public class OrgClass extends JFrame {
                 }
             });
 
-            closeBtn.addActionListener(e -> {
-                Window w = SwingUtilities.getWindowAncestor(closeBtn);
-                if (w != null) w.dispose();
-            });
+            closeBtn.addActionListener(e -> f.dispose());
 
-            JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            bottom.add(saveBtn);
-            bottom.add(closeBtn);
-
-            JFrame f = new JFrame("My Events");
-            f.setSize(900, 450);
-            f.setLayout(new BorderLayout());
-            f.add(scroll, BorderLayout.CENTER);
-            f.add(bottom, BorderLayout.SOUTH);
-            f.setLocationRelativeTo(this);
             f.setVisible(true);
 
         } catch (Exception e) {
@@ -575,4 +602,408 @@ public class OrgClass extends JFrame {
         }
     }
 
+    private JButton makeTopButton(String text) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(BUTTON_COLOR);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                super.paintComponent(g);
+            }
+        };
+        btn.setOpaque(false);
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setForeground(Color.WHITE);
+        btn.setFont(new Font("SansSerif", Font.BOLD, 13));
+        btn.setPreferredSize(new Dimension(140, 32));
+        return btn;
+    }
+
+}
+
+// ======================================================================
+//                         ArchiveClass (نفس الملف)
+// ======================================================================
+
+class ArchiveClass extends JFrame {
+
+    private final int organizerId;
+
+    private static final Color SIDEBAR_COLOR = Color.decode("#263717");
+    private static final Color CARD_COLOR    = Color.decode("#74835A");
+    private static final Color BG_COLOR      = Color.decode("#FFFADD");
+    private static final Color BTN_COLOR     = Color.decode("#74835A");
+
+    public ArchiveClass(int organizerId) {
+        this.organizerId = organizerId;
+
+        setTitle("Archive");
+        setSize(1000, 650);
+        setLayout(new BorderLayout());
+        getContentPane().setBackground(BG_COLOR);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        add(buildSidebar(), BorderLayout.WEST);
+        add(buildContent(), BorderLayout.CENTER);
+
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
+
+    private JPanel buildSidebar() {
+        JPanel side = new JPanel();
+        side.setBackground(SIDEBAR_COLOR);
+        side.setPreferredSize(new Dimension(220, getHeight()));
+        side.setLayout(new BoxLayout(side, BoxLayout.Y_AXIS));
+        side.setBorder(BorderFactory.createEmptyBorder(25, 20, 25, 25));
+
+        JLabel title = new JLabel("<html><span style='color:#FFFADD;font-size:12px;'> Here are the events<br>you completed</span></html>");
+        title.setAlignmentX(Component.LEFT_ALIGNMENT);
+        side.add(title);
+
+        side.add(Box.createVerticalGlue());
+
+        side.add(makeSidebarButton("Attendance of Volunteers", e -> new ParticipationView(organizerId)));
+        side.add(Box.createVerticalStrut(15));
+
+        side.add(makeSidebarButton("Back", e -> dispose()));
+
+        return side;
+    }
+
+    private JButton makeSidebarButton(String text, ActionListener action) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(BTN_COLOR);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 25, 25);
+                super.paintComponent(g);
+            }
+        };
+        btn.setAlignmentX(Component.LEFT_ALIGNMENT);
+        btn.setMaximumSize(new Dimension(180, 40));
+        btn.setForeground(Color.WHITE);
+
+        // ⬇️ صغّرنا الخط شوي عشان النص ياخذ مساحة أقل وما يطلع ... بسهولة
+        btn.setFont(new Font("SansSerif", Font.BOLD, 10));
+
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.addActionListener(action);
+        return btn;
+    }
+
+    private JPanel buildContent() {
+        JPanel content = new JPanel(new BorderLayout());
+        content.setBackground(BG_COLOR);
+        content.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+        JLabel header = new JLabel("Events:");
+        header.setFont(new Font("SansSerif", Font.BOLD, 20));
+        header.setForeground(Color.decode("#263717"));
+        content.add(header, BorderLayout.NORTH);
+
+        JPanel cardsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 20));
+        cardsPanel.setBackground(BG_COLOR);
+
+        ArrayList<EventData> doneEvents = loadCompletedEvents();
+        header.setText("Events : " + doneEvents.size());
+
+        for (EventData ev : doneEvents) {
+
+            RoundedPanel card = new RoundedPanel(26);
+            card.setPreferredSize(new Dimension(260, 200));
+            card.setBackground(CARD_COLOR);
+            card.setLayout(null);
+            card.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            JLabel t = new JLabel("Event Title: " + ev.name);
+            t.setForeground(new Color(0xFFFADD));
+            t.setFont(new Font("SansSerif", Font.BOLD, 15));
+            t.setBounds(20, 10, 220, 18);
+            card.add(t);
+
+            JLabel d = new JLabel("Date : " + ev.date);
+            d.setForeground(new Color(0xFFFADD));
+            d.setFont(new Font("SansSerif", Font.PLAIN, 13));
+            d.setBounds(20, 35, 220, 18);
+            card.add(d);
+
+            JLabel loc = new JLabel("Location: " + ev.location);
+            loc.setForeground(new Color(0xFFFADD));
+            loc.setFont(new Font("SansSerif", Font.PLAIN, 13));
+            loc.setBounds(20, 55, 220, 18);
+            card.add(loc);
+
+            JLabel time = new JLabel("Time : " + ev.start + " - " + ev.end);
+            time.setForeground(new Color(0xFFFADD));
+            time.setFont(new Font("SansSerif", Font.PLAIN, 13));
+            time.setBounds(20, 75, 220, 18);
+            card.add(time);
+
+            JLabel desc = new JLabel("<html>Description: " + ev.desc + "</html>");
+            desc.setForeground(new Color(0xFFFADD));
+            desc.setFont(new Font("SansSerif", Font.PLAIN, 12));
+            desc.setBounds(20, 95, 220, 40);
+            card.add(desc);
+
+            JButton uploadBtn = new JButton("Upload your documentation") {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g;
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(SIDEBAR_COLOR);
+                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                    super.paintComponent(g);
+                }
+            };
+            uploadBtn.setBounds(25, 145, 200, 32);
+            uploadBtn.setForeground(Color.WHITE);
+            uploadBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
+            uploadBtn.setContentAreaFilled(false);
+            uploadBtn.setBorderPainted(false);
+            uploadBtn.setFocusPainted(false);
+            uploadBtn.addActionListener(e -> showUploadDialog(ev));
+
+            card.add(uploadBtn);
+            cardsPanel.add(card);
+        }
+
+        JScrollPane scroll = new JScrollPane(cardsPanel);
+        scroll.setBorder(null);
+        scroll.getVerticalScrollBar().setUnitIncrement(14);
+
+        content.add(scroll, BorderLayout.CENTER);
+        return content;
+    }
+
+    private void showUploadDialog(EventData event) {
+
+        final File[] selectedFile = new File[1];
+
+        JDialog dialog = new JDialog(this, "Upload your documentation", true);
+        dialog.setLayout(new BorderLayout());
+        dialog.getContentPane().setBackground(SIDEBAR_COLOR);
+        dialog.setSize(420, 320);
+        dialog.setLocationRelativeTo(this);
+
+        JLabel title = new JLabel("Upload your documentation", SwingConstants.CENTER);
+        title.setForeground(new Color(0xFFFADD));
+        title.setFont(new Font("SansSerif", Font.BOLD, 14));
+        title.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
+        dialog.add(title, BorderLayout.NORTH);
+
+        JPanel center = new JPanel(new GridLayout(3, 1, 10, 12));
+        center.setBackground(SIDEBAR_COLOR);
+        center.setBorder(BorderFactory.createEmptyBorder(20, 80, 20, 80));
+
+        JButton chooseFile  = makeDialogButton("Choose from files");
+        JButton choosePhoto = makeDialogButton("Choose photo or video");
+        JButton scanDoc     = makeDialogButton("Scan document");
+
+        center.add(chooseFile);
+        center.add(choosePhoto);
+        center.add(scanDoc);
+
+        dialog.add(center, BorderLayout.CENTER);
+
+        chooseFile.addActionListener(e -> {
+            File f = openFileChooser();
+            if (f != null) {
+                selectedFile[0] = f;
+                JOptionPane.showMessageDialog(this, "Selected file: " + f.getName());
+            }
+        });
+
+        choosePhoto.addActionListener(e -> {
+            File f = openPhotoChooser();
+            if (f != null) {
+                selectedFile[0] = f;
+                JOptionPane.showMessageDialog(this, "Selected photo/video: " + f.getName());
+            }
+        });
+
+        scanDoc.addActionListener(e ->
+                JOptionPane.showMessageDialog(this, "This feature isn’t supported on computers")
+        );
+
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        bottom.setOpaque(false);
+
+        JButton okBtn     = makeBottomButton("OK");
+        JButton cancelBtn = makeBottomButton("Cancel");
+
+        bottom.add(okBtn);
+        bottom.add(cancelBtn);
+        dialog.add(bottom, BorderLayout.SOUTH);
+
+        okBtn.addActionListener(e -> {
+            if (selectedFile[0] != null) {
+                try {
+                    saveFileForEvent(event, selectedFile[0]);
+                    JOptionPane.showMessageDialog(this,
+                            "File uploaded and saved for event: " + event.name);
+                    dialog.dispose();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this,
+                            "Error while saving file:\n" + ex.getMessage(),
+                            "Upload Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No file selected.");
+            }
+        });
+
+        cancelBtn.addActionListener(e -> dialog.dispose());
+
+        dialog.setVisible(true);
+    }
+
+    private JButton makeDialogButton(String text) {
+        JButton b = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(CARD_COLOR);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 22, 22);
+                super.paintComponent(g);
+            }
+        };
+        b.setForeground(Color.WHITE);
+
+        // ⬇️ صغّرنا الخط لكل أزرار الاختيار بالدialog (Choose / photo / scan)
+        b.setFont(new Font("SansSerif", Font.BOLD, 11));
+
+        b.setContentAreaFilled(false);
+        b.setBorderPainted(false);
+        b.setFocusPainted(false);
+        return b;
+    }
+
+    private JButton makeBottomButton(String text) {
+        JButton b = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(CARD_COLOR);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                super.paintComponent(g);
+            }
+        };
+        b.setForeground(Color.WHITE);
+
+        // ⬇️ صغّرنا الخط شوية لزر OK و Cancel
+        b.setFont(new Font("SansSerif", Font.BOLD, 12));
+
+        b.setContentAreaFilled(false);
+        b.setBorderPainted(false);
+        b.setFocusPainted(false);
+        b.setPreferredSize(new Dimension(80, 34));
+        return b;
+    }
+
+    private File openFileChooser() {
+        JFileChooser fileChooser = new JFileChooser();
+        int returnValue = fileChooser.showOpenDialog(this);
+        return (returnValue == JFileChooser.APPROVE_OPTION)
+                ? fileChooser.getSelectedFile()
+                : null;
+    }
+
+    private File openPhotoChooser() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileNameExtensionFilter(
+                "Image and Video Files", "jpg", "jpeg", "png", "gif", "mp4", "avi"));
+        int returnValue = fileChooser.showOpenDialog(this);
+        return (returnValue == JFileChooser.APPROVE_OPTION)
+                ? fileChooser.getSelectedFile()
+                : null;
+    }
+
+    private void saveFileForEvent(EventData event, File sourceFile) throws Exception {
+        File uploadDir = new File("uploads");
+        if (!uploadDir.exists()) uploadDir.mkdirs();
+
+        String safeEventName = event.name.replaceAll("[^a-zA-Z0-9-_\\.]", "_");
+        String targetFileName = safeEventName + "_" + sourceFile.getName();
+
+        File targetFile = new File(uploadDir, targetFileName);
+        Files.copy(sourceFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+        System.out.println("Saved file to: " + targetFile.getAbsolutePath());
+    }
+
+    private ArrayList<EventData> loadCompletedEvents() {
+        ArrayList<EventData> list = new ArrayList<>();
+
+        String sql = """
+                SELECT name, location, event_date, start_time, end_time, description
+                FROM events
+                WHERE organizer_id = ?
+                  AND status = 'APPROVED'
+                """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, organizerId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(new EventData(
+                        rs.getString("name"),
+                        rs.getString("location"),
+                        rs.getString("event_date"),
+                        rs.getString("start_time"),
+                        rs.getString("end_time"),
+                        rs.getString("description")
+                ));
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+
+        return list;
+    }
+
+    static class EventData {
+        String name, location, date, start, end, desc;
+
+        EventData(String n, String loc, String d, String s, String e, String de) {
+            name = n;
+            location = loc;
+            date = d;
+            start = s;
+            end = e;
+            desc = de;
+        }
+    }
+
+    static class RoundedPanel extends JPanel {
+        private int radius;
+
+        RoundedPanel(int radius) {
+            this.radius = radius;
+            setOpaque(false);
+        }
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(getBackground());
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+            super.paintComponent(g);
+        }
+    }
 }
