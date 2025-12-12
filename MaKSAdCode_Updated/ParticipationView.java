@@ -114,6 +114,7 @@ public class ParticipationView extends JFrame {
         model = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
+                // بس نمنع تعديل الأعمدة الأساسية
                 return !(col == 0 || col == 1 || col == 2 || col == 3);
             }
         };
@@ -131,7 +132,7 @@ public class ParticipationView extends JFrame {
         JComboBox<String> statusCombo = new JComboBox<>(STATUS_OPTIONS);
         table.getColumnModel().getColumn(8).setCellEditor(new DefaultCellEditor(statusCombo));
 
-        // SEARCH
+        // SEARCH FILTER
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(model);
         table.setRowSorter(sorter);
 
@@ -147,6 +148,24 @@ public class ParticipationView extends JFrame {
             public void insertUpdate(javax.swing.event.DocumentEvent e) { filter(); }
             public void removeUpdate(javax.swing.event.DocumentEvent e) { filter(); }
             public void changedUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+        });
+
+        // لو الحالة مو PRESENT نمسح الأوقات والساعات من الجدول (UI بس)
+        model.addTableModelListener(e -> {
+            int row = e.getFirstRow();
+            int col = e.getColumn();
+
+            if (row < 0 || col != 8) return; // نتابع بس عمود Status
+
+            Object statusObj = model.getValueAt(row, 8);
+            if (statusObj == null) return;
+
+            String status = statusObj.toString();
+            if (!"PRESENT".equalsIgnoreCase(status)) {
+                model.setValueAt("", row, 4); // check-in
+                model.setValueAt("", row, 5); // check-out
+                model.setValueAt("", row, 6); // hours
+            }
         });
 
         JScrollPane scroll = new JScrollPane(table);
@@ -169,8 +188,17 @@ public class ParticipationView extends JFrame {
                 vp.event_name,
                 vp.event_date,
 
-                COALESCE(vp.check_in,  e.start_time) AS resolved_check_in,
-                COALESCE(vp.check_out, e.end_time)   AS resolved_check_out,
+                CASE 
+                    WHEN vp.status = 'PRESENT'
+                        THEN COALESCE(vp.check_in, e.start_time)
+                    ELSE vp.check_in
+                END AS resolved_check_in,
+
+                CASE 
+                    WHEN vp.status = 'PRESENT'
+                        THEN COALESCE(vp.check_out, e.end_time)
+                    ELSE vp.check_out
+                END AS resolved_check_out,
 
                 vp.hours,
                 vp.role,
@@ -192,8 +220,8 @@ public class ParticipationView extends JFrame {
                 Timestamp co = rs.getTimestamp("resolved_check_out");
 
                 Double hoursVal = null;
-
                 Object hoursObj = rs.getObject("hours");
+
                 if (hoursObj != null) {
                     hoursVal = rs.getDouble("hours");
                 } else if (ci != null && co != null && co.after(ci)) {
@@ -223,28 +251,36 @@ public class ParticipationView extends JFrame {
     }
 
     // -----------------------------------------------------------
-    // 4) Save Changes
+    // 4) Save Changes (فيها منطق حساب الساعات)
     // -----------------------------------------------------------
     private void saveChangesToDatabase() {
 
-        String sql = """
+        String updateSql = """
             UPDATE volunteer_participations
             SET role=?, status=?, check_in=?, check_out=?, hours=?
             WHERE volunteer_id=? AND event_name=? AND event_date=?
         """;
 
+        // نستخدمها لما نحتاج نجيب start_time/end_time لو ما فيه check-in/out
+        String eventTimeSql = """
+            SELECT start_time, end_time
+            FROM events
+            WHERE name=? AND event_date=?
+        """;
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(updateSql);
+             PreparedStatement evPs = conn.prepareStatement(eventTimeSql)) {
 
             for (int i = 0; i < model.getRowCount(); i++) {
 
-                Object volIdObj    = model.getValueAt(i, 0);
-                Object eventNameObj= model.getValueAt(i, 2);
-                Object eventDateObj= model.getValueAt(i, 3);
-                Object checkInObj  = model.getValueAt(i, 4);
-                Object checkOutObj = model.getValueAt(i, 5);
-                Object roleObj     = model.getValueAt(i, 7);
-                Object statusObj   = model.getValueAt(i, 8);
+                Object volIdObj     = model.getValueAt(i, 0);
+                Object eventNameObj = model.getValueAt(i, 2);
+                Object eventDateObj = model.getValueAt(i, 3);
+                Object checkInObj   = model.getValueAt(i, 4);
+                Object checkOutObj  = model.getValueAt(i, 5);
+                Object roleObj      = model.getValueAt(i, 7);
+                Object statusObj    = model.getValueAt(i, 8);
 
                 if (volIdObj == null || eventNameObj == null || eventDateObj == null) {
                     showValidationError("Missing key data in row " + (i + 1) + ".");
@@ -264,31 +300,58 @@ public class ParticipationView extends JFrame {
 
                 String checkInStr  = checkInObj  == null ? "" : checkInObj.toString().trim();
                 String checkOutStr = checkOutObj == null ? "" : checkOutObj.toString().trim();
-                String role
-                        = roleObj == null ? "" : roleObj.toString().trim();
-                String status
-                        = statusObj == null ? "" : statusObj.toString().trim();
+                String role        = roleObj     == null ? "" : roleObj.toString().trim();
+                String status      = statusObj   == null ? "" : statusObj.toString().trim();
 
                 Timestamp ci = null;
-                if (!checkInStr.isEmpty()) {
-                    ci = parseTimestampStrict(checkInStr, "Check-in", i);
-                    if (ci == null) return;
-                }
-
                 Timestamp co = null;
-                if (!checkOutStr.isEmpty()) {
-                    co = parseTimestampStrict(checkOutStr, "Check-out", i);
-                    if (co == null) return;
-                }
-
                 Double hours = null;
-                if (ci != null && co != null) {
-                    if (!co.after(ci)) {
-                        showValidationError("Check-out must be after Check-in (row " + (i + 1) + ").");
+
+                if ("PRESENT".equalsIgnoreCase(status)) {
+
+                    // 1) لو المستخدم كتب check-in/out يدوي في الجدول نحاول نقرأهم
+                    if (!checkInStr.isEmpty()) {
+                        ci = parseTimestampStrict(checkInStr, "Check-in", i);
+                        if (ci == null) return;
+                    }
+
+                    if (!checkOutStr.isEmpty()) {
+                        co = parseTimestampStrict(checkOutStr, "Check-out", i);
+                        if (co == null) return;
+                    }
+
+                    // 2) لو واحد منهم أو الاثنين فاضيين → نجيبهم من events
+                    if (ci == null || co == null) {
+                        evPs.setString(1, eventName);
+                        evPs.setString(2, eventDate);
+
+                        try (ResultSet ers = evPs.executeQuery()) {
+                            if (ers.next()) {
+                                if (ci == null) ci = ers.getTimestamp("start_time");
+                                if (co == null) co = ers.getTimestamp("end_time");
+                            }
+                        }
+                    }
+
+                    // 3) لو صار عندنا ci & co نحسب الساعات
+                    if (ci != null && co != null) {
+                        if (!co.after(ci)) {
+                            showValidationError("Check-out must be after Check-in (row " + (i + 1) + ").");
+                            return;
+                        }
+                        long minutes = (co.getTime() - ci.getTime()) / 60000;
+                        hours = minutes / 60.0;
+                    } else {
+                        // ما قدرنا نحدد الأوقات
+                        showValidationError("Missing event times for row " + (i + 1) + ".");
                         return;
                     }
-                    long minutes = (co.getTime() - ci.getTime()) / 60000;
-                    hours = minutes / 60.0;
+
+                } else {
+                    // أي حالة غير PRESENT → ما في ساعات ولا أوقات
+                    ci = null;
+                    co = null;
+                    hours = null;
                 }
 
                 ps.setString(1, role);
@@ -308,6 +371,7 @@ public class ParticipationView extends JFrame {
 
             ps.executeBatch();
 
+            // نحدّث مجموع الساعات في جدول volunteers
             updateVolunteerHours(conn);
 
             JOptionPane.showMessageDialog(this,
@@ -315,6 +379,7 @@ public class ParticipationView extends JFrame {
                     "Success",
                     JOptionPane.INFORMATION_MESSAGE);
 
+            // نرجع نحمّل البيانات عشان الجدول يتحدث
             loadParticipationFromDB();
 
         } catch (SQLException ex) {
@@ -396,7 +461,6 @@ public class ParticipationView extends JFrame {
                             "Info",
                             JOptionPane.WARNING_MESSAGE);
                 }
-
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(null,
                         "Error:\n" + ex.getMessage(),
