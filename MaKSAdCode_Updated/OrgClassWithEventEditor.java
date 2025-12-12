@@ -112,7 +112,6 @@ public class OrgClassWithEventEditor extends JFrame {
 
         eventList.setBackground(BG_LIGHT);
         eventList.setBorder(new EmptyBorder(10, 10, 10, 10));
-
         eventList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -229,7 +228,6 @@ public class OrgClassWithEventEditor extends JFrame {
 
     private void deleteEvent() {
         if (selectedEvent == null) return;
-
         int confirm = JOptionPane.showConfirmDialog(
                 this,
                 "Delete event: " + selectedEvent.name + "?",
@@ -337,7 +335,6 @@ public class OrgClassWithEventEditor extends JFrame {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-
         String sql = """
                 UPDATE events
                 SET name=?, category=?, location=?, volunteers=?, event_date=?, start_time=?, end_time=?, description=?
@@ -439,7 +436,7 @@ public class OrgClassWithEventEditor extends JFrame {
                     organizerId = rs.getInt(1);
                 } else {
                     JOptionPane.showMessageDialog(null,
-                            "⚠ No organizers found",
+                            "⚠️ No organizers found",
                             "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
