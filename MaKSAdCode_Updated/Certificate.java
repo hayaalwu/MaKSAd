@@ -178,6 +178,7 @@ public class Certificate extends JFrame {
                 super.paintComponent(g);
             }
         };
+        
         btn.setForeground(Color.WHITE);
         btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
@@ -188,3 +189,4 @@ public class Certificate extends JFrame {
         return btn;
     }
 }
+
