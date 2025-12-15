@@ -287,7 +287,6 @@ public class OrgClass extends JFrame {
         btn.setMaximumSize(new Dimension(200, 45));
         btn.setForeground(Color.WHITE);
 
-        // ⬇️ هنا صغّرنا الخط بشكل منطقي (Manage Volunteers يطلع أرتب)
         btn.setFont(new Font("SansSerif", Font.BOLD, 12));
 
         btn.setContentAreaFilled(false);
@@ -332,9 +331,7 @@ public class OrgClass extends JFrame {
         }
     }
 
-    // ============================================================
-    //               ⭐️⭐️   ADD EVENT (UPDATED)   ⭐️⭐️
-    // ============================================================
+    // ADD EVENT (UPDATED)  
 
     private void addEvent() {
 
@@ -467,7 +464,7 @@ public class OrgClass extends JFrame {
         }
     }
 
-    // =================== NEW STYLE FOR "MY EVENTS" WINDOW ===================
+    //  NEW STYLE FOR "MY EVENTS" WINDOW 
     private void showMyEventsTable() {
 
         String sql = """
@@ -626,9 +623,7 @@ public class OrgClass extends JFrame {
 
 }
 
-// ======================================================================
-//                         ArchiveClass (نفس الملف)
-// ======================================================================
+//  ArchiveClass 
 
 class ArchiveClass extends JFrame {
 
@@ -691,7 +686,6 @@ class ArchiveClass extends JFrame {
         btn.setMaximumSize(new Dimension(180, 40));
         btn.setForeground(Color.WHITE);
 
-        // ⬇️ صغّرنا الخط شوي عشان النص ياخذ مساحة أقل وما يطلع ... بسهولة
         btn.setFont(new Font("SansSerif", Font.BOLD, 10));
 
         btn.setContentAreaFilled(false);
@@ -880,7 +874,6 @@ class ArchiveClass extends JFrame {
         };
         b.setForeground(Color.WHITE);
 
-        // ⬇️ صغّرنا الخط لكل أزرار الاختيار بالدialog (Choose / photo / scan)
         b.setFont(new Font("SansSerif", Font.BOLD, 11));
 
         b.setContentAreaFilled(false);
@@ -902,7 +895,6 @@ class ArchiveClass extends JFrame {
         };
         b.setForeground(Color.WHITE);
 
-        // ⬇️ صغّرنا الخط شوية لزر OK و Cancel
         b.setFont(new Font("SansSerif", Font.BOLD, 12));
 
         b.setContentAreaFilled(false);
@@ -1007,3 +999,4 @@ class ArchiveClass extends JFrame {
         }
     }
 }
+
