@@ -3,7 +3,7 @@ package maksadpro;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
-import com.toedter.calendar.JDateChooser;   // ← الكالندر
+import com.toedter.calendar.JDateChooser;   
 import java.text.SimpleDateFormat;
 
 public class SignUpStep1Frame extends JFrame {
@@ -20,7 +20,7 @@ public class SignUpStep1Frame extends JFrame {
     private JRadioButton onsiteRadio;
     private JRadioButton onlineRadio;
 
-    private JDateChooser dobChooser;   // ← بدل الـ TextField
+    private JDateChooser dobChooser;   
 
     public SignUpStep1Frame() {
         setTitle("MaKSAd – Sign Up (Step 1)");
@@ -58,7 +58,6 @@ public class SignUpStep1Frame extends JFrame {
         passwordField = new JPasswordField(22);
         confirmPasswordField = new JPasswordField(22);
 
-        // كالندر بدل كتابة تاريخ
         dobChooser = new JDateChooser();
         dobChooser.setDateFormatString("yyyy-MM-dd");
         dobChooser.setPreferredSize(new Dimension(150, 28));
@@ -82,7 +81,6 @@ public class SignUpStep1Frame extends JFrame {
         addRow(form, gc, row++, "Password:", passwordField);
         addRow(form, gc, row++, "Confirm Password:", confirmPasswordField);
 
-        // كالندر
         gc.gridx = 0; gc.gridy = row;
         form.add(new JLabel("Date of Birth:"), gc);
         gc.gridx = 1;
@@ -142,7 +140,6 @@ public class SignUpStep1Frame extends JFrame {
         String pass     = new String(passwordField.getPassword());
         String confirm  = new String(confirmPasswordField.getPassword());
 
-        // نقرأ التاريخ من الكالندر
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dob = dobChooser.getDate() != null ? sdf.format(dobChooser.getDate()) : null;
 
@@ -152,7 +149,6 @@ public class SignUpStep1Frame extends JFrame {
         String prefType = onsiteRadio.isSelected() ? "On-site" :
                           (onlineRadio.isSelected() ? "Online" : null);
 
-        // VALIDATIONS الأساسية (باقية زي ما هي + زدنا الفحص بالتفصيل من SignUpData)
         if (fullName.isEmpty() || email.isEmpty() || pass.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in required fields.");
             return;
@@ -174,11 +170,6 @@ public class SignUpStep1Frame extends JFrame {
             return;
         }
 
-        // نبني SignUpData ونستخدم validate() اللي فيه:
-        // - password ≥ 8
-        // - email يحتوي @ و .
-        // - phone يبدأ بـ 05 وطوله 10 أرقام
-        // - وغيرها من الشروط
         SignUpData data = new SignUpData();
         data.setFullName(fullName);
         data.setEmail(email);
@@ -200,7 +191,6 @@ public class SignUpStep1Frame extends JFrame {
             return;
         }
 
-        // التحقق من تكرار الإيميل/الجوال بعد ما نتأكد أن الصيغة صحيحة
         if (emailExists(email)) {
             JOptionPane.showMessageDialog(this, "This email is already registered.");
             return;
@@ -210,7 +200,6 @@ public class SignUpStep1Frame extends JFrame {
             return;
         }
 
-        // لو كل شيء تمام → ننتقل للخطوة الثانية ومعانا SignUpData
         dispose();
         new SignUpStep2Frame(data).setVisible(true);
     }
@@ -242,4 +231,5 @@ public class SignUpStep1Frame extends JFrame {
             return true;
         }
     }
+
 }
