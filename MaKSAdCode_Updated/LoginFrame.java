@@ -18,7 +18,6 @@ public class LoginFrame extends JFrame {
         setTitle("MaKSAd – Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // واجهة ثابتة — نفس مقاس Figma
         setSize(1280, 850);
         setLocationRelativeTo(null);
         setLayout(null);
@@ -28,11 +27,11 @@ public class LoginFrame extends JFrame {
 
     private void initUI() {
 
-        // ================= BACKGROUND =================
+        //  BACKGROUND 
         getContentPane().setBackground(Color.decode("#FFFADD"));
 
 
-        // ================= TOP BAR =================
+        //  TOP BAR 
         JPanel topBar = new JPanel();
         topBar.setBackground(Color.decode("#263717"));
         topBar.setBounds(0, 0, 1280, 130);
@@ -47,11 +46,10 @@ public class LoginFrame extends JFrame {
 
 
 
-        // ================= CENTER FORM PANEL =================
+        //  CENTER FORM PANEL 
         JPanel card = new RoundedPanel(30);
         card.setBackground(Color.decode("#74835A"));
 
-        // وسط الشاشة تمامًا
         int cardWidth = 600;
         int cardHeight = 180;
         int cardX = (1280 - cardWidth) / 2;
@@ -61,7 +59,7 @@ public class LoginFrame extends JFrame {
         card.setLayout(null);
 
 
-        // ======== LABELS + FIELDS (Perfect alignment) ========
+        //  LABELS + FIELDS (Perfect alignment) 
         JLabel idLabel = new JLabel("Account ID:");
         idLabel.setFont(new Font("SansSerif", Font.BOLD, 17));
         idLabel.setForeground(Color.WHITE);
@@ -91,7 +89,7 @@ public class LoginFrame extends JFrame {
 
 
 
-        // ================= LOGIN BUTTON =================
+        //  LOGIN BUTTON 
         JButton loginBtn = new JButton("Login") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -112,7 +110,6 @@ public class LoginFrame extends JFrame {
         loginBtn.setFocusPainted(false);
         loginBtn.setFont(new Font("SansSerif", Font.BOLD, 18));
 
-        // تحت الكارد مباشرة — متناسق
         loginBtn.setBounds((1280 - 180) / 2, cardY + cardHeight + 35, 180, 48);
 
         loginBtn.addActionListener(e -> attemptLogin());
@@ -121,7 +118,7 @@ public class LoginFrame extends JFrame {
 
 
 
-        // ================= LOGO (BOTTOM LEFT) =================
+        //  LOGO (BOTTOM LEFT) 
         JLabel logo = new JLabel();
         loadImage(logo, "/maksadpro/MaKSAdPH/MaKSAdLogo.png", 130, 130);
         logo.setBounds(60, 630, 150, 150);
@@ -129,18 +126,17 @@ public class LoginFrame extends JFrame {
 
 
 
-        // ================= PALM (BOTTOM RIGHT) =================
+        //  PALM (BOTTOM RIGHT) 
         JLabel palm = new JLabel();
         loadImage(palm, "/maksadpro/MaKSAdPH/MaKSAdPalm.png", 280, 280);
 
-        // ملاصقة للحافة بدون ما تتقصّر
         palm.setBounds(1280 - 260 - 40, 850 - 260 - 20, 260, 260);
 
         add(palm);
 
 
 
-        // ================= STATUS ERROR LABEL =================
+        //  STATUS ERROR LABEL 
         statusLabel = new JLabel(" ", SwingConstants.CENTER);
         statusLabel.setForeground(Color.RED);
         statusLabel.setBounds(0, cardY + cardHeight + 90, 1280, 28);
@@ -149,27 +145,22 @@ public class LoginFrame extends JFrame {
     }
 
 
-    // =======================================================
-    // LOGIN LOGIC (مع Validation للباسورد + Error Handling)
-    // =======================================================
+    // LOGIN LOGIC
     private void attemptLogin() {
 
         String idText = idField.getText().trim();
         String pass   = new String(passwordField.getPassword());
 
-        // 1) التحقق من أنها مو فاضية
         if (idText.isEmpty() || pass.isEmpty()) {
             statusLabel.setText("Please enter your ID and password.");
             return;
         }
 
-        // 2) التحقق من طول الباسورد (8 أو أكثر)
         if (pass.length() < 8) {
             statusLabel.setText("Password must be at least 8 characters.");
             return;
         }
 
-        // 3) التحقق من أن الـ ID أرقام فقط
         if (!idText.matches("\\d+")) {
             statusLabel.setText("ID must be numeric.");
             return;
@@ -183,23 +174,19 @@ public class LoginFrame extends JFrame {
 
             if (user != null) {
 
-                // ================================
-                // تحديث last_login في جدول admins
-                // ================================
+         
                 try (Connection conn = DBConnection.getConnection();
                      PreparedStatement ps = conn.prepareStatement(
                              "UPDATE admins SET last_login = NOW() WHERE admin_id = ?"
                      )) {
 
-                    ps.setInt(1, user.getId());  // يفترض أن getId() يرجّع admin_id
+                    ps.setInt(1, user.getId());  
                     ps.executeUpdate();
 
                 } catch (SQLException ex2) {
                     ex2.printStackTrace();
-                    // ما نوقف الدخول لو صار خطأ في التحديث
                 }
 
-                // افتحي الواجهة بعد التحديث
                 dispose();
                 MaKSAdUserSystem.openInterfaceFor(user);
 
@@ -211,7 +198,6 @@ public class LoginFrame extends JFrame {
             ex.printStackTrace();
             statusLabel.setText("Database error. Please try again later.");
 
-            // نافذة خطأ صغيرة مثل حق الداتابيس كونكشن
             JOptionPane.showMessageDialog(
                     this,
                     "A database error occurred while trying to log you in.\n"
@@ -224,9 +210,7 @@ public class LoginFrame extends JFrame {
     }
 
 
-    // =======================================================
     // IMAGE LOADER
-    // =======================================================
     private void loadImage(JLabel label, String path, int w, int h) {
         try {
             URL url = getClass().getResource(path);
@@ -239,9 +223,7 @@ public class LoginFrame extends JFrame {
     }
 
 
-    // =======================================================
     // ROUNDED CARD PANEL
-    // =======================================================
     class RoundedPanel extends JPanel {
         int radius;
 
@@ -266,4 +248,5 @@ public class LoginFrame extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
     }
+
 }
