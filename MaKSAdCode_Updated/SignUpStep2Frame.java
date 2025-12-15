@@ -96,7 +96,7 @@ public class SignUpStep2Frame extends JFrame {
 
         center.add(listsPanel);
 
-        // ================== BUTTONS (BACK + SUBMIT) ==================
+        //  BUTTONS (BACK + SUBMIT) 
         JPanel btnPanel = new JPanel();
         btnPanel.setOpaque(false);
         btnPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20));
@@ -132,7 +132,7 @@ public class SignUpStep2Frame extends JFrame {
         for (JCheckBox cb : skillChecks)
             if (cb.isSelected()) data.getSkills().add(cb.getText());
 
-        // ======== VALIDATION: لازم يختار على الأقل اهتمام واحد أو مهارة واحدة ========
+        //  VALIDATION
         if (data.getInterests().isEmpty() && data.getSkills().isEmpty()) {
             JOptionPane.showMessageDialog(
                     this,
