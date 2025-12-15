@@ -191,6 +191,7 @@ public class CertificatesView extends JFrame {
                 super.paintComponent(g);
             }
         };
+        
         btn.setForeground(Color.WHITE);
         btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
@@ -201,3 +202,4 @@ public class CertificatesView extends JFrame {
         return btn;
     }
 }
+
