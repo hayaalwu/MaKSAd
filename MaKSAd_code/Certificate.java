@@ -1,5 +1,4 @@
 import java.time.LocalDate;
-
 /* Represents a certificate awarded to a volunteer after completing an event. */
 public class Certificate { // [**User registration**]
 
@@ -41,3 +40,4 @@ public class Certificate { // [**User registration**]
         return volunteerName + " - " + eventName + " (" + issueDate + ")";
     }
 }
+
