@@ -11,14 +11,14 @@ public class Report {
     private LocalDateTime dateGenerated;
     private int generatedBy;     // admin_id (FK)
 
-    // ================= CONSTRUCTOR =================
+    //  CONSTRUCTOR 
     public Report(String reportType, int adminId) {
         this.reportType = reportType;
         this.generatedBy = adminId;
         this.dateGenerated = LocalDateTime.now();
     }
 
-    // ================= GETTERS / SETTERS =================
+    //  GETTERS / SETTERS 
     public int getReportID() {
         return reportID;
     }
@@ -43,9 +43,7 @@ public class Report {
         return generatedBy;
     }
 
-    // ============================================================
-    // INSERT INTO DATABASE (مشترك لكل الأنواع)
-    // ============================================================
+    // INSERT INTO DATABASE 
     private void insertBaseReportRecord() throws SQLException {
 
         String sql = """
@@ -75,9 +73,7 @@ public class Report {
         }
     }
 
-    // ============================================================
     // GENERAL REPORT
-    // ============================================================
     public void generateGeneralReport() {
         try {
             insertBaseReportRecord();
@@ -86,9 +82,7 @@ public class Report {
         }
     }
 
-    // ============================================================
     // TIMED REPORT
-    // ============================================================
     public void generateTimedReport(String rangeStart, String rangeEnd) {
         try {
             insertBaseReportRecord();
@@ -117,9 +111,7 @@ public class Report {
         }
     }
 
-    // ============================================================
     // CATEGORY REPORT
-    // ============================================================
     public void generateCategoryReport(String categoryName) {
         try {
             insertBaseReportRecord();
@@ -146,4 +138,5 @@ public class Report {
             ps.executeUpdate();
         }
     }
+
 }
