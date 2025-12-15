@@ -4,7 +4,7 @@ public class MaKSAd {
 
     public static void main(String[] args) {
 
-        // Ensure UI uses current system theme
+        // Ensure UI uses current system theme 
         try {
             javax.swing.UIManager.setLookAndFeel(
                     javax.swing.UIManager.getSystemLookAndFeelClassName()
@@ -15,4 +15,5 @@ public class MaKSAd {
             new MainWelcomeFrame().setVisible(true);
         });
     }
+
 }
