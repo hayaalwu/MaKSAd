@@ -22,11 +22,12 @@ public class CertificatesView extends JFrame {
             rows[i][2] = c.getHours();
             rows[i][3] = c.getIssueDate();
         }
-
         JTable table = new JTable(new DefaultTableModel(rows, cols));
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         setVisible(true);
     }
 }
+
+
 
