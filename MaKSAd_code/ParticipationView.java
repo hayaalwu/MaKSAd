@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package maksad1;
 
 import javax.swing.*;
@@ -18,7 +14,6 @@ public class ParticipationView extends JFrame {
     private JTable table;
     private DefaultTableModel model;
 
-    // عشان نقدر نربط status بالـ ENUM
     private static final String[] STATUS_OPTIONS = {
             "PRESENT", "ABSENT", "CANCELED", "UNSET"
     };
@@ -28,13 +23,11 @@ public class ParticipationView extends JFrame {
         setSize(1000, 550);
         setLayout(new BorderLayout());
 
-        // 🔍 شريط البحث
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
         searchField = new JTextField(18);
         
-        // زر حفظ التغييرات
         JButton saveBtn = new JButton("Save Changes");
-//        saveBtn.addActionListener(e -> saveChangesToDatabase());
+        // saveBtn.addActionListener(e -> saveChangesToDatabase());
         saveBtn.setPreferredSize(new Dimension(120, 27));
 
         top.add(new JLabel("Search Volunteer:"));
@@ -42,7 +35,6 @@ public class ParticipationView extends JFrame {
         top.add(saveBtn);
         add(top, BorderLayout.NORTH);
 
-        // 🧾 الجدول
         String[] cols = {
                 "Volunteer ID",
                 "Volunteer Name",
@@ -74,27 +66,25 @@ public class ParticipationView extends JFrame {
         model = new DefaultTableModel(rows, cols) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                // نخلي التعديل فقط على Role (7) و Status (8) و (اختياري) check-in (4) و check-out (5)
                 return column == 4 || column == 5 || column == 7 || column == 8;
             }
         };
 
         table = new JTable(model);
 
-        // ComboBox للـ Status
+        // ComboBox  Status
         JComboBox<String> statusCombo = new JComboBox<>(STATUS_OPTIONS);
         TableColumn statusColumn = table.getColumnModel().getColumn(8);
         statusColumn.setCellEditor(new DefaultCellEditor(statusCombo));
 
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        // فلترة البحث بالاسم (عمود 1)
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
         table.setRowSorter(sorter);
         searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             void filter() {
                 String q = searchField.getText();
-                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(q), 1)); // ← العمود 1 = الاسم
+                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(q), 1));  
             }
             public void insertUpdate(javax.swing.event.DocumentEvent e) { filter(); }
             public void removeUpdate(javax.swing.event.DocumentEvent e) { filter(); }
@@ -108,11 +98,11 @@ public class ParticipationView extends JFrame {
     }
 
 
-    // مثال لحفظ التغييرات في MySQL
+    //  MySQL
 //    private void saveChangesToDatabase() {
 //        String url = "jdbc:mysql://localhost:3306/maksad";
 //        String user = "root";
-//        String pass = "your_password";  // غيريها
+//        String pass = "your_password";  
 //
 //        String updateSql =
 //                "UPDATE volunteer_participations " +
@@ -126,7 +116,7 @@ public class ParticipationView extends JFrame {
 //
 //            for (int i = 0; i < model.getRowCount(); i++) {
 //                int volunteerId   = (int)    model.getValueAt(i, 0);
-//                String volunteerName = (String) model.getValueAt(i, 1); // لو حابة تستخدمينه في واجهة ثانية
+//                String volunteerName = (String) model.getValueAt(i, 1);
 //                String eventName  = (String) model.getValueAt(i, 2);
 //                java.sql.Date eventDate = java.sql.Date.valueOf(model.getValueAt(i, 3).toString());
 //
@@ -138,7 +128,6 @@ public class ParticipationView extends JFrame {
 //                Timestamp checkOut = (checkOutStr == null || checkOutStr.isEmpty())
 //                        ? null : Timestamp.valueOf(checkOutStr.replace('T', ' ').substring(0, 16) + ":00");
 //
-//                // ساعات جديدة نحسبها هنا بشكل بسيط (اختياري، تقدرِين تستدعين getParticipationHours من الأوبجكت)
 //                Double hours = null;
 //                if (checkIn != null && checkOut != null && checkOut.after(checkIn)) {
 //                    long minutes = (checkOut.getTime() - checkIn.getTime()) / (1000 * 60);
@@ -169,14 +158,13 @@ public class ParticipationView extends JFrame {
 //        }
 //    }
 //
-    // تشغيل بسيط
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            // هنا عادة راح تجيبين البيانات من الداتابيس وتحولينها لـ List<VolunteerParticipation>
             new ParticipationView(new java.util.ArrayList<>());
         });
     }
 }
+
 
 
 
