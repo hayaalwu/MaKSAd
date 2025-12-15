@@ -16,13 +16,13 @@ public class ParticipationApprovalView extends JFrame {
     private JTable table;
     private DefaultTableModel model;
 
-    // ====== THEME COLORS ======
+    //  THEME COLORS 
     private static final Color BG_MAIN   = Color.decode("#263717");
     private static final Color BG_CARD   = Color.decode("#FFFADD");
     private static final Color BTN_COLOR = Color.decode("#74835A");
     private static final Color TEXT_DARK = Color.decode("#1E1E1E");
 
-    // ====== APPROVAL STATUS OPTIONS ======
+    //  APPROVAL STATUS OPTIONS 
     private static final String[] STATUS_OPTIONS = {
             "APPROVED", "PENDING", "CANCELED"
     };
@@ -55,9 +55,7 @@ public class ParticipationApprovalView extends JFrame {
         );
     }
 
-    // -----------------------------------------------------------
     // 1) Top Bar
-    // -----------------------------------------------------------
     private void buildTopBar() {
 
         JPanel top = new JPanel(new BorderLayout());
@@ -94,9 +92,7 @@ public class ParticipationApprovalView extends JFrame {
         add(top, BorderLayout.NORTH);
     }
 
-    // -----------------------------------------------------------
     // 2) Table
-    // -----------------------------------------------------------
     private void buildTable() {
 
         String[] cols = {
@@ -172,9 +168,7 @@ public class ParticipationApprovalView extends JFrame {
         add(scroll, BorderLayout.CENTER);
     }
 
-    // -----------------------------------------------------------
     // 3) Load Participation Data
-    // -----------------------------------------------------------
     private void loadParticipationFromDB() {
 
         model.setRowCount(0);
@@ -254,9 +248,7 @@ public class ParticipationApprovalView extends JFrame {
         }
     }
 
-    // -----------------------------------------------------------
     // 4) Save Changes to DB
-    // -----------------------------------------------------------
     private void saveChangesToDatabase() {
 
         String sql = """
