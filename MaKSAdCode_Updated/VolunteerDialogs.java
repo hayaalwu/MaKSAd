@@ -315,7 +315,7 @@ public class VolunteerDialogs {
         }
     }
 
-    // 2) CancelJoinDialog – Cancel upcoming join
+    // CancelJoinDialog – Cancel upcoming join
 
     static class CancelJoinDialog extends JDialog {
         private final Volunteer parent;
@@ -460,7 +460,7 @@ public class VolunteerDialogs {
         }
     }
 
-    // 3) ParticipationTable – Participation history
+    // ParticipationTable – Participation history
 
     static class ParticipationTable extends JFrame {
         private final Volunteer parent;
@@ -592,4 +592,5 @@ public class VolunteerDialogs {
         }
     }
 }
+
 
