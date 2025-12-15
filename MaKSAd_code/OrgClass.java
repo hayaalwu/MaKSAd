@@ -193,4 +193,6 @@ public class OrgClass extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(OrgClass::new);
     }
+    
 }
+
