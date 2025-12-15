@@ -16,7 +16,7 @@ public class ParticipationView extends JFrame {
     private JTable table;
     private DefaultTableModel model;
 
-    // ====== THEME COLORS ======
+    //  THEME COLORS 
     private static final Color BG_MAIN   = Color.decode("#263717");
     private static final Color BG_CARD   = Color.decode("#FFFADD");
     private static final Color BTN_COLOR = Color.decode("#74835A");
@@ -55,9 +55,7 @@ public class ParticipationView extends JFrame {
         );
     }
 
-    // -----------------------------------------------------------
     // 1) Top Bar
-    // -----------------------------------------------------------
     private void buildTopBar() {
 
         JPanel top = new JPanel(new BorderLayout());
@@ -94,9 +92,7 @@ public class ParticipationView extends JFrame {
         add(top, BorderLayout.NORTH);
     }
 
-    // -----------------------------------------------------------
     // 2) Table
-    // -----------------------------------------------------------
     private void buildTable() {
 
         String[] cols = {
@@ -114,7 +110,6 @@ public class ParticipationView extends JFrame {
         model = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
-                // بس نمنع تعديل الأعمدة الأساسية
                 return !(col == 0 || col == 1 || col == 2 || col == 3);
             }
         };
@@ -150,12 +145,11 @@ public class ParticipationView extends JFrame {
             public void changedUpdate(javax.swing.event.DocumentEvent e) { filter(); }
         });
 
-        // لو الحالة مو PRESENT نمسح الأوقات والساعات من الجدول (UI بس)
         model.addTableModelListener(e -> {
             int row = e.getFirstRow();
             int col = e.getColumn();
 
-            if (row < 0 || col != 8) return; // نتابع بس عمود Status
+            if (row < 0 || col != 8) return; 
 
             Object statusObj = model.getValueAt(row, 8);
             if (statusObj == null) return;
@@ -174,9 +168,7 @@ public class ParticipationView extends JFrame {
         add(scroll, BorderLayout.CENTER);
     }
 
-    // -----------------------------------------------------------
     // 3) Load Participation Data
-    // -----------------------------------------------------------
     private void loadParticipationFromDB() {
 
         model.setRowCount(0);
@@ -250,9 +242,7 @@ public class ParticipationView extends JFrame {
         }
     }
 
-    // -----------------------------------------------------------
     // 4) Save Changes (فيها منطق حساب الساعات)
-    // -----------------------------------------------------------
     private void saveChangesToDatabase() {
 
         String updateSql = """
@@ -261,7 +251,6 @@ public class ParticipationView extends JFrame {
             WHERE volunteer_id=? AND event_name=? AND event_date=?
         """;
 
-        // نستخدمها لما نحتاج نجيب start_time/end_time لو ما فيه check-in/out
         String eventTimeSql = """
             SELECT start_time, end_time
             FROM events
@@ -309,7 +298,6 @@ public class ParticipationView extends JFrame {
 
                 if ("PRESENT".equalsIgnoreCase(status)) {
 
-                    // 1) لو المستخدم كتب check-in/out يدوي في الجدول نحاول نقرأهم
                     if (!checkInStr.isEmpty()) {
                         ci = parseTimestampStrict(checkInStr, "Check-in", i);
                         if (ci == null) return;
@@ -320,7 +308,6 @@ public class ParticipationView extends JFrame {
                         if (co == null) return;
                     }
 
-                    // 2) لو واحد منهم أو الاثنين فاضيين → نجيبهم من events
                     if (ci == null || co == null) {
                         evPs.setString(1, eventName);
                         evPs.setString(2, eventDate);
@@ -333,7 +320,6 @@ public class ParticipationView extends JFrame {
                         }
                     }
 
-                    // 3) لو صار عندنا ci & co نحسب الساعات
                     if (ci != null && co != null) {
                         if (!co.after(ci)) {
                             showValidationError("Check-out must be after Check-in (row " + (i + 1) + ").");
@@ -342,13 +328,11 @@ public class ParticipationView extends JFrame {
                         long minutes = (co.getTime() - ci.getTime()) / 60000;
                         hours = minutes / 60.0;
                     } else {
-                        // ما قدرنا نحدد الأوقات
                         showValidationError("Missing event times for row " + (i + 1) + ".");
                         return;
                     }
 
                 } else {
-                    // أي حالة غير PRESENT → ما في ساعات ولا أوقات
                     ci = null;
                     co = null;
                     hours = null;
@@ -371,7 +355,6 @@ public class ParticipationView extends JFrame {
 
             ps.executeBatch();
 
-            // نحدّث مجموع الساعات في جدول volunteers
             updateVolunteerHours(conn);
 
             JOptionPane.showMessageDialog(this,
@@ -379,7 +362,6 @@ public class ParticipationView extends JFrame {
                     "Success",
                     JOptionPane.INFORMATION_MESSAGE);
 
-            // نرجع نحمّل البيانات عشان الجدول يتحدث
             loadParticipationFromDB();
 
         } catch (SQLException ex) {
@@ -470,3 +452,4 @@ public class ParticipationView extends JFrame {
         });
     }
 }
+
