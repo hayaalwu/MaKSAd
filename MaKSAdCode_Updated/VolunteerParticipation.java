@@ -12,16 +12,14 @@ public class VolunteerParticipation {
     private int eventId;
     private String eventName;
 
-    private LocalDate eventDate;   // من جدول participations فقط
+    private LocalDate eventDate;   
     private String role;
 
     private LocalDateTime checkInAt;
     private LocalDateTime checkOutAt;
     private AttendanceStatus status = AttendanceStatus.UNSET;
 
-    // ============================================================
     // CONSTRUCTOR
-    // ============================================================
     public VolunteerParticipation(int volunteerId,
                                   String volunteerName,
                                   int eventId,
@@ -47,9 +45,7 @@ public class VolunteerParticipation {
         }
     }
 
-    // ============================================================
     // GETTERS
-    // ============================================================
     public int getVolunteerId() { return volunteerId; }
     public String getVolunteerName() { return volunteerName; }
     public int getEventId() { return eventId; }
@@ -66,9 +62,7 @@ public class VolunteerParticipation {
         return Duration.between(checkInAt, checkOutAt).toMinutes() / 60.0;
     }
 
-    // ============================================================
     // SETTERS + AUTO UPDATE TO DB
-    // ============================================================
     public void setRole(String role) throws SQLException {
         this.role = role;
         updateField("role", role);
@@ -91,9 +85,7 @@ public class VolunteerParticipation {
         updateHoursInDB();
     }
 
-    // ============================================================
     // HELPERS: UPDATE DB
-    // ============================================================
     private void updateField(String column, Object value) throws SQLException {
 
         String sql = "UPDATE volunteer_participations " +
@@ -166,9 +158,7 @@ public class VolunteerParticipation {
         }
     }
 
-    // ============================================================
     // DELETE
-    // ============================================================
     public void deleteFromDB() throws SQLException {
         String sql = """
             DELETE FROM volunteer_participations
@@ -187,4 +177,5 @@ public class VolunteerParticipation {
 
         updateVolunteerTotalHours();
     }
+
 }
