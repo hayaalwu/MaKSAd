@@ -16,9 +16,7 @@ public class VolunteerDialogs {
     private static final Color COLOR_DARK = Color.decode("#263717");
     private static final Color COLOR_CARD = Color.decode("#74835A");
 
-    // ======================== MODELS ========================
 
-    // يمثل حدث واحد من جدول events
     static class DBEvent {
         int eventId;
         String name;
@@ -52,7 +50,6 @@ public class VolunteerDialogs {
         }
     }
 
-    // عنصر واحد من المشاركات المستقبلية بحالة UNSET
     static class PendingParticipation {
         String eventName;
         LocalDate eventDate;
@@ -68,7 +65,6 @@ public class VolunteerDialogs {
         }
     }
 
-    // صف واحد في جدول تاريخ المشاركات
     static class ParticipationRow {
         String eventName;
         LocalDate eventDate;
@@ -83,9 +79,7 @@ public class VolunteerDialogs {
         }
     }
 
-    // ========================================================
-    //                 1) EventDialog – Request to Join
-    // ========================================================
+ 
 
     static class EventDialog extends JDialog {
 
@@ -110,7 +104,7 @@ public class VolunteerDialogs {
             getContentPane().setBackground(COLOR_BG);
             setLayout(new BorderLayout(10, 10));
 
-            // ===== top bar =====
+            //  top bar 
             JPanel top = new JPanel(new BorderLayout());
             top.setBackground(COLOR_DARK);
             top.setBorder(new EmptyBorder(8, 18, 8, 18));
@@ -121,7 +115,7 @@ public class VolunteerDialogs {
             top.add(title, BorderLayout.CENTER);
             add(top, BorderLayout.NORTH);
 
-            // ===== list on the left =====
+            //  list on the left 
             loadEventsFromDB();
             list = new JList<>(model);
             list.setSelectionBackground(Color.decode("#B0BE97"));
@@ -148,7 +142,7 @@ public class VolunteerDialogs {
             leftPanel.add(listScroll, BorderLayout.CENTER);
             leftPanel.setPreferredSize(new Dimension(230, 0));
 
-            // ===== details card on the right =====
+            //  details card on the right 
             JPanel detailsCard = new JPanel();
             detailsCard.setBackground(COLOR_CARD);
             detailsCard.setBorder(new EmptyBorder(14, 18, 14, 18));
@@ -179,7 +173,7 @@ public class VolunteerDialogs {
             center.add(detailsCard, BorderLayout.CENTER);
             add(center, BorderLayout.CENTER);
 
-            // ===== bottom buttons =====
+            //  bottom buttons 
             JPanel bottom = new JPanel(new BorderLayout());
             bottom.setOpaque(false);
             bottom.setBorder(new EmptyBorder(4, 18, 10, 18));
@@ -227,11 +221,7 @@ public class VolunteerDialogs {
             txtDescription.setCaretPosition(0);
         }
 
-        /**
-         * تحميل الأحداث المتاحة للانضمام:
-         * - تاريخها اليوم أو بعده
-         * - هذا المتطوع لم ينضم لها سابقًا (status <> 'CANCELED')
-         */
+      
         private void loadEventsFromDB() {
             model.clear();
             String sql = """
@@ -275,10 +265,7 @@ public class VolunteerDialogs {
             }
         }
 
-        /**
-         * إدخال سطر في volunteer_participations + تحديث عداد volunteers في events
-         * بدون استخدام event_id داخل جدول المشاركات (حسب السكيمة).
-         */
+      
         private void joinSelectedEvent() {
             DBEvent ev = list.getSelectedValue();
             if (ev == null) return;
@@ -328,9 +315,7 @@ public class VolunteerDialogs {
         }
     }
 
-    // ========================================================
-    //           2) CancelJoinDialog – Cancel upcoming join
-    // ========================================================
+    // 2) CancelJoinDialog – Cancel upcoming join
 
     static class CancelJoinDialog extends JDialog {
         private final Volunteer parent;
@@ -475,9 +460,7 @@ public class VolunteerDialogs {
         }
     }
 
-    // ========================================================
-    //         3) ParticipationTable – Participation history
-    // ========================================================
+    // 3) ParticipationTable – Participation history
 
     static class ParticipationTable extends JFrame {
         private final Volunteer parent;
@@ -585,7 +568,7 @@ public class VolunteerDialogs {
             return list;
         }
 
-        // local button style (يشبه أزرار البيرنت)
+        // local button style 
         private JButton createMainButton(String text) {
             JButton btn = new JButton(text) {
                 @Override
@@ -609,3 +592,4 @@ public class VolunteerDialogs {
         }
     }
 }
+
