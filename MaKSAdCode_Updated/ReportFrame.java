@@ -11,15 +11,15 @@ import java.time.LocalDateTime;
 
 public class ReportFrame extends JFrame {
 
-    // ================= THEME COLORS =================
-    private static final Color COLOR_BACKGROUND = Color.decode("#4C5834"); // الأخضر الخارجي
-    private static final Color COLOR_DARK_GREEN = Color.decode("#263717"); // عمود المنيو
-    private static final Color COLOR_OLIVE      = Color.decode("#74835A"); // أزرار المنيو
-    private static final Color COLOR_CARD_BG    = Color.decode("#EDE4C4"); // البيج
+    //  THEME COLORS 
+    private static final Color COLOR_BACKGROUND = Color.decode("#4C5834");  
+    private static final Color COLOR_DARK_GREEN = Color.decode("#263717");  
+    private static final Color COLOR_OLIVE      = Color.decode("#74835A"); 
+    private static final Color COLOR_CARD_BG    = Color.decode("#EDE4C4"); 
     private static final Color COLOR_WHITE      = Color.WHITE;
-    private static final Color COLOR_BROWN      = new Color(0x5A3018);     // البني
+    private static final Color COLOR_BROWN      = new Color(0x5A3018);     
 
-    // Scaling factor لعناصر داخل البيج
+    // Scaling factor   
     private static final double SCALE = 0.90;
 
     // Logo path
@@ -29,17 +29,17 @@ public class ReportFrame extends JFrame {
 
     private CardLayout cardLayout;
     private JPanel cardPanel;
-    // ---------- Timed Entries State ----------
+    //  Timed Entries State 
     private LocalDate lastTimedFrom = null;
     private LocalDate lastTimedTo   = null;
 
-    // ---------- Category Entries State ----------
+    //  Category Entries State 
     private String lastCategory = null;
 
-    // ---------- New Category Label ----------
+    //  New Category Label 
     private JLabel lblCatParticipants;
 
-    // ---------- General Report Labels ----------
+    //  General Report Labels 
     private JLabel lblGenReportId;
     private JLabel lblGenType;
     private JLabel lblGenDate;
@@ -49,7 +49,7 @@ public class ReportFrame extends JFrame {
     private JLabel lblGenTotalEvents;
     private JLabel lblGenTotalCertificates;
 
-    // ---------- Timed Report Labels ----------
+    //  Timed Report Labels 
     private JLabel lblTimedReportId;
     private JLabel lblTimedType;
     private JLabel lblTimedDate;
@@ -58,7 +58,7 @@ public class ReportFrame extends JFrame {
     private JLabel lblTimedEvents;
     private JLabel lblTimedParticipants;
 
-    // ---------- Category Report Labels ----------
+    //  Category Report Labels 
     private JLabel lblCatReportId;
     private JLabel lblCatType;
     private JLabel lblCatDate;
@@ -74,7 +74,6 @@ public class ReportFrame extends JFrame {
         setTitle("MaKSAd – Reports");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        // حجم افتراضي + حد أدنى
         setSize(1200, 720);
         setMinimumSize(new Dimension(1100, 650));
         setLocationRelativeTo(null);
@@ -108,12 +107,12 @@ public class ReportFrame extends JFrame {
         return lbl;
     }
 
-    // ======================= LAYOUT =======================
+    //  LAYOUT 
 
     private void initLayout() {
         getContentPane().setLayout(new BorderLayout());
 
-        // ---------- LEFT MENU ----------
+        //  LEFT MENU 
         JPanel menu = new JPanel();
         menu.setBackground(COLOR_DARK_GREEN);
         menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
@@ -148,7 +147,7 @@ public class ReportFrame extends JFrame {
         menu.add(btnReturn);
 
 
-        // ---------- CENTER CARD PANEL ----------
+        //  CENTER CARD PANEL 
         cardLayout = new CardLayout();
         cardPanel  = new JPanel(cardLayout);
         cardPanel.setBackground(COLOR_BACKGROUND);
@@ -161,7 +160,7 @@ public class ReportFrame extends JFrame {
         getContentPane().add(menu, BorderLayout.WEST);
         getContentPane().add(cardPanel, BorderLayout.CENTER);
 
-        // ---------- ACTIONS ----------
+        //  ACTIONS 
         btnGeneral.addActionListener(e -> {
             cardLayout.show(cardPanel, "general");
             generateGeneralReport();
@@ -181,7 +180,7 @@ public class ReportFrame extends JFrame {
         btnReturn.addActionListener(e -> dispose());
     }
 
-    // ======================= PANELS =======================
+    //  PANELS 
 
     private JPanel buildGeneralPanel() {
         JPanel panel = new JPanel(null);
@@ -236,7 +235,6 @@ public class ReportFrame extends JFrame {
         return panel;
     }
 
-    // يصغر / يحدد مكان البانلات البيج داخل الخلفية الخضراء
     private void layoutGeneralPanels(JPanel container, JPanel left, JPanel main) {
         int w = container.getWidth();
         int h = container.getHeight();
@@ -349,7 +347,7 @@ public class ReportFrame extends JFrame {
             }
         });
 
-        // ===== Left meta boxes =====
+        //  Left meta boxes 
         lblCatReportId = createBrownLabel("-", sf(16), SwingConstants.CENTER);
         createMetaBox(left, "Report ID", 30, lblCatReportId);
 
@@ -362,7 +360,7 @@ public class ReportFrame extends JFrame {
         lblCatBy = createBrownLabel(admin.getName(), sf(16), SwingConstants.CENTER);
         createMetaBox(left, "Generated By", 420, lblCatBy);
 
-        // ===== Category name field =====
+        //  Category name field 
         RoundedPanel catField = new RoundedPanel(COLOR_WHITE, COLOR_BROWN, 30);
         catField.setLayout(new BorderLayout());
         catField.setBounds(s(70), s(110), s(590), s(80));
@@ -374,7 +372,7 @@ public class ReportFrame extends JFrame {
         catField.add(lblCatCategory, BorderLayout.CENTER);
         main.add(catField);
 
-        // ===== Total Events row =====
+        //  Total Events row 
         RoundedPanel countField = new RoundedPanel(COLOR_WHITE, COLOR_BROWN, 30);
         catCountField = countField;
         countField.setLayout(new BorderLayout());
@@ -398,10 +396,10 @@ public class ReportFrame extends JFrame {
         countSquare.add(lblCatCount, BorderLayout.CENTER);
         main.add(countSquare);
 
-        // ===== Total Participants row =====
+        //  Total Participants row 
         lblCatParticipants = createValueRow(main, "Total Participants", 350);
 
-        // ===== Show Entries button =====
+        //  Show Entries button 
         JButton btnCatEntries = createMenuButton("Show Entries");
         btnCatEntries.setBounds(s(70), s(440), s(260), s(52));
         btnCatEntries.addActionListener(e -> showCategoryEntriesPopup());
@@ -419,7 +417,7 @@ public class ReportFrame extends JFrame {
     }
 
 
-    // ======================= REPORT GENERATION =======================
+    //  REPORT GENERATION 
 
     private void generateGeneralReport() {
         try (Connection conn = DBConnection.getConnection()) {
@@ -620,7 +618,7 @@ public class ReportFrame extends JFrame {
 
             green.add(tableBg, BorderLayout.CENTER);
             
-            // ===== Close button row =====
+            //  Close button row
             JButton btnClose = createMenuButton("Close");
             btnClose.addActionListener(e -> d.dispose());
 
@@ -668,7 +666,7 @@ public class ReportFrame extends JFrame {
     }
 
 
-    // ======================= DB HELPERS =======================
+    //  DB HELPERS 
 
     private int queryCount(Connection conn, String sql, Object... params) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -730,7 +728,7 @@ public class ReportFrame extends JFrame {
         );
     }
 
-    // ======================= UI HELPERS =======================
+    //  UI HELPERS 
 
     private JButton createMenuButton(String text) {
         JButton btn = new JButton(text) {
@@ -764,7 +762,6 @@ public class ReportFrame extends JFrame {
         return lbl;
     }
 
-    // block في العمود اليسار (عنوان + قيمة تحت)
     private void createMetaBox(JPanel parent, String title, int y, JLabel valueLabel) {
         RoundedPanel box = new RoundedPanel(COLOR_CARD_BG, COLOR_BROWN, 35);
         box.setLayout(null);
@@ -782,7 +779,6 @@ public class ReportFrame extends JFrame {
         parent.add(box);
     }
 
-    // صف أبيض + مربع بني فيه الرقم
     private JLabel createValueRow(JPanel parent, String title, int y) {
         RoundedPanel field = new RoundedPanel(COLOR_WHITE, COLOR_BROWN, 30);
         field.setLayout(null);
@@ -814,7 +810,7 @@ public class ReportFrame extends JFrame {
             if (url == null) return;
 
             ImageIcon icon = new ImageIcon(url);
-            int size = 130; // نخلي اللوقو واضح
+            int size = 130; 
             Image img = icon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
             JLabel logo = new JLabel(new ImageIcon(img));
             logo.setSize(size, size);
@@ -844,7 +840,7 @@ public class ReportFrame extends JFrame {
         );
     }
     
-    // ========== FIGMA REPLICATION INTERFACE HELPERS ==========
+    //  FIGMA REPLICATION INTERFACE HELPERS 
     private static final Color POPUP_BROWN = new Color(0x6B3B1F);
     private static final Color POPUP_HEADER = new Color(0x8B5A3C);
     private static final Color POPUP_BTN = new Color(0xA8745A);
@@ -1442,7 +1438,6 @@ public class ReportFrame extends JFrame {
     }
 
     
-    // بانل بحواف دائرية
     private static class RoundedPanel extends JPanel {
         private final Color bg;
         private final Color border;
@@ -1475,3 +1470,4 @@ public class ReportFrame extends JFrame {
         }
     }
 }
+
