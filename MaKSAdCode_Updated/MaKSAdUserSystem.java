@@ -26,9 +26,7 @@ public class MaKSAdUserSystem {
         public Role getRole()   { return role; }
     }
 
-    // ==========================================================
     // UNIFIED LOGIN USING maksad_users
-    // ==========================================================
     public static AuthenticatedUser login(int id, String password) throws SQLException {
 
         String sql = """
@@ -72,9 +70,7 @@ public class MaKSAdUserSystem {
         return null;
     }
 
-    // ==========================================================
     // INTERFACE SWITCHER
-    // ==========================================================
     public static void openInterfaceFor(AuthenticatedUser user) {
 
         if (user == null) {
@@ -92,7 +88,7 @@ public class MaKSAdUserSystem {
         }
     }
 
-    // ====================== OPEN ADMIN ======================
+    //  OPEN ADMIN 
     private static void openAdminInterface(AuthenticatedUser user) {
         SwingUtilities.invokeLater(() -> {
 
@@ -129,17 +125,18 @@ public class MaKSAdUserSystem {
         return null;
     }
 
-    // ====================== OPEN ORGANIZER ======================
+    //  OPEN ORGANIZER 
     private static void openOrganizerInterface(AuthenticatedUser user) {
         SwingUtilities.invokeLater(() -> {
             new OrgClass(user.getId()).setVisible(true);
         });
     }
 
-    // ====================== OPEN VOLUNTEER ======================
+    //  OPEN VOLUNTEER 
     private static void openVolunteerInterface(AuthenticatedUser user) {
         SwingUtilities.invokeLater(() -> {
             new Volunteer(user).setVisible(true);
         });
     }
+
 }
