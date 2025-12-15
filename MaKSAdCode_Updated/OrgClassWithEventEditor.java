@@ -436,7 +436,7 @@ public class OrgClassWithEventEditor extends JFrame {
                     organizerId = rs.getInt(1);
                 } else {
                     JOptionPane.showMessageDialog(null,
-                            "⚠️ No organizers found",
+                            "No organizers found",
                             "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -452,3 +452,4 @@ public class OrgClassWithEventEditor extends JFrame {
         });
     }
 }
+
