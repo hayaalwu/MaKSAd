@@ -24,14 +24,14 @@ public class MainWelcomeFrame extends JFrame {
 
     private void initUI() {
 
-        // ================= LEFT SIDE RECTANGLE =================
+        //  LEFT SIDE RECTANGLE 
         JPanel leftPanel = new JPanel();
         leftPanel.setBackground(Color.decode("#FFFADD"));
         leftPanel.setPreferredSize(new Dimension(140, getHeight()));
         add(leftPanel, BorderLayout.WEST);
 
 
-        // ================= MAIN CENTER PANEL =================
+        //  MAIN CENTER PANEL 
         JPanel centerPanel = new JPanel();
         centerPanel.setBackground(Color.decode("#263717"));
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
@@ -39,7 +39,7 @@ public class MainWelcomeFrame extends JFrame {
         add(centerPanel, BorderLayout.CENTER);
 
 
-        // ================= ABOUT BUTTON (TOP RIGHT) =================
+        //  ABOUT BUTTON (TOP RIGHT) 
         JPanel topBar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         topBar.setOpaque(false);
 
@@ -51,7 +51,7 @@ public class MainWelcomeFrame extends JFrame {
         centerPanel.add(Box.createVerticalStrut(50));
 
 
-        // ================= LOGO =================
+        //  LOGO 
         JLabel logo = new JLabel();
         logo.setAlignmentX(Component.CENTER_ALIGNMENT);
         loadImage(logo, "/maksadpro/MaKSAdPH/MaKSAdLogo.png", 200, 200);
@@ -60,7 +60,7 @@ public class MainWelcomeFrame extends JFrame {
         centerPanel.add(Box.createVerticalStrut(45));
 
 
-        // ================= TEXT =================
+        //  TEXT 
         JLabel textImg = new JLabel();
         textImg.setAlignmentX(Component.CENTER_ALIGNMENT);
         loadImage(textImg, "/maksadpro/MaKSAdPH/Text.png", 880, 68);     
@@ -69,7 +69,7 @@ public class MainWelcomeFrame extends JFrame {
         centerPanel.add(Box.createVerticalStrut(70));
 
 
-        // ================= BUTTONS =================
+        //  BUTTONS 
         JButton loginBtn  = createButton("Login");
         JButton signupBtn = createButton("SignUp");
 
@@ -88,7 +88,7 @@ public class MainWelcomeFrame extends JFrame {
         centerPanel.add(signupBtn);
 
 
-        // ================= NEW TEXT UNDER SIGNUP =================
+        //  NEW TEXT UNDER SIGNUP 
         JLabel noAccountLabel = new JLabel("Don’t have an account yet? Create one now");
         noAccountLabel.setForeground(Color.decode("#74835A"));
         noAccountLabel.setFont(new Font("SansSerif", Font.PLAIN, 15));
@@ -102,7 +102,7 @@ public class MainWelcomeFrame extends JFrame {
     }
 
 
-    // ================= IMAGE LOADING =================
+    //  IMAGE LOADING 
     private void loadImage(JLabel label, String path, int w, int h) {
         try {
             URL url = getClass().getResource(path);
@@ -116,7 +116,7 @@ public class MainWelcomeFrame extends JFrame {
     }
 
 
-    // ================= MAIN BUTTON STYLE =================
+    //  MAIN BUTTON STYLE 
     private JButton createButton(String text) {
 
         JButton btn = new JButton(text) {
@@ -147,7 +147,7 @@ public class MainWelcomeFrame extends JFrame {
     }
 
 
-    // ================= SMALL BUTTON STYLE =================
+    //  SMALL BUTTON STYLE 
     private JButton createSmallButton(String text) {
 
         JButton btn = new JButton(text) {
@@ -176,7 +176,7 @@ public class MainWelcomeFrame extends JFrame {
     }
 
 
-    // ================= ABOUT SCREEN =================
+    //  ABOUT SCREEN 
     private void showAboutScreen() {
 
         JFrame about = new JFrame("About MaKSAd");
@@ -196,4 +196,5 @@ public class MainWelcomeFrame extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new MainWelcomeFrame().setVisible(true));
     }
+
 }
