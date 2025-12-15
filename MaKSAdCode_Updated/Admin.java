@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-// ====== NEW IMPORTS FOR DATABASE ======
+//  NEW IMPORTS FOR DATABASE 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -13,18 +13,18 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 
-// ====== IMPORT FOR ERROR DIALOGS ======
+//  IMPORT FOR ERROR DIALOGS 
 import javax.swing.JOptionPane;
 
-// ====== IMPORT FOR RANDOM PASSWORD ======
+//  IMPORT FOR RANDOM PASSWORD 
 import java.security.SecureRandom;
 
-/**
- * Admin superclass.
- */
+
+ //Admin superclass.
+ 
 public class Admin {
 
-    // ===================== ATTRIBUTES =====================
+    //  ATTRIBUTES 
     private int adminID;
     private String name;
     private String email;
@@ -37,7 +37,7 @@ public class Admin {
     private final List<EventRecord> events = new ArrayList<>();
     private final List<ReportSummary> reports = new ArrayList<>();
 
-    // ===================== DB CONNECTION HELPER =====================
+    //  DB CONNECTION HELPER 
     private static Connection getConnection() throws SQLException {
         String url = "jdbc:mysql://localhost:3306/maksad?useSSL=false&serverTimezone=UTC";
         String user = "root";
@@ -45,7 +45,7 @@ public class Admin {
         return DriverManager.getConnection(url, user, pass);
     }
 
-    // ===================== VALIDATION HELPERS =====================
+    //  VALIDATION HELPERS 
     private static void showErrorDialog(String message, String title) {
         JOptionPane.showMessageDialog(
                 null,
@@ -69,7 +69,6 @@ public class Admin {
             throw new IllegalArgumentException("Phone number cannot be empty.");
         }
         String trimmed = phone.trim();
-        // سعودي: يبدأ بـ 05 وطوله 10 أرقام
         if (!trimmed.startsWith("05")) {
             throw new IllegalArgumentException("Phone number must start with 05.");
         }
@@ -89,18 +88,18 @@ public class Admin {
         }
     }
 
-    // ===================== RANDOM PASSWORD GENERATOR =====================
+    //  RANDOM PASSWORD GENERATOR 
     private static String generateRandomPassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom random = new SecureRandom();
-        StringBuilder sb = new StringBuilder(10); // طول الباسوورد 10
+        StringBuilder sb = new StringBuilder(10);   
         for (int i = 0; i < 10; i++) {
             sb.append(chars.charAt(random.nextInt(chars.length())));
         }
         return sb.toString();
     }
 
-    // ===================== CONSTRUCTORS =====================
+    //  CONSTRUCTORS 
     public Admin(int adminID, String name, String email, String password,
                  boolean isSuperAdmin, String roleTitle) {
 
@@ -113,10 +112,9 @@ public class Admin {
         this.lastLoginDate = new Date();
     }
 
-    // *** تم حذف الـ constructor الافتراضي كما طلبتِ ***
-    // public Admin() { ... }
+   
 
-    // ===================== MAIN BEHAVIOR =====================
+    //  MAIN BEHAVIOR 
     public void manageSystem() {
         System.out.println("Managing system configuration...");
     }
@@ -127,22 +125,21 @@ public class Admin {
         System.out.println("- Events: " + events.size());
     }
 
-    // ===================== ORGANIZERS =====================
+    //  ORGANIZERS 
     public void createOrganizer(String name, String email, String phone) {
 
-        // ---- VALIDATION ----
+        //  VALIDATION 
         try {
             validateEmail(email);
             validatePhone(phone);
         } catch (IllegalArgumentException ex) {
             showErrorDialog(ex.getMessage(), "Invalid Organizer Data");
-            return; // لا نكمل الإدخال في حال وجود خطأ
+            return; 
         }
 
         String sql = "INSERT INTO organizers (name, email, phone, active, role, password) VALUES (?, ?, ?, ?, ?, ?)";
 
         int newId = 0;
-        // *** باسوورد عشوائي بدل فاضي ***
         String randomPassword = generateRandomPassword();
 
         try (Connection c = getConnection();
@@ -153,7 +150,7 @@ public class Admin {
             ps.setString(3, phone);
             ps.setBoolean(4, true);
             ps.setString(5, "Organizer");
-            ps.setString(6, randomPassword);   // باسوورد عشوائي
+            ps.setString(6, randomPassword);   
 
             ps.executeUpdate();
 
@@ -174,7 +171,7 @@ public class Admin {
 
     public void updateOrganizer(int orgID, String name, String email, String phone) {
 
-        // ---- VALIDATION ----
+        //  VALIDATION 
         try {
             validateEmail(email);
             validatePhone(phone);
@@ -248,7 +245,7 @@ public class Admin {
         if (org != null) org.active = false;
     }
 
-    // ===================== EVENTS =====================
+    //  EVENTS 
     public void createEventForOrganizer(int organizerId, EventData eventData) {
 
         int newEventId = 0;
@@ -341,7 +338,7 @@ public class Admin {
         if (ev != null) ev.status = "REJECTED";
     }
 
-    // ===================== REPORTS =====================
+    //  REPORTS 
     public void addReportSummary(int reportID,
                                  String reportType,
                                  String reportTitle,
@@ -416,10 +413,10 @@ public class Admin {
         return data;
     }
 
-    // ===================== ACCOUNT =====================
+    //  ACCOUNT 
     public boolean login(String email, String password) {
 
-        // ---- VALIDATION ----
+        //  VALIDATION 
         try {
             validateEmail(email);
             validatePassword(password);
@@ -465,12 +462,11 @@ public class Admin {
                     "Database Error");
         }
 
-        // بيانات الدخول غير صحيحة
         showErrorDialog("Invalid email or password.", "Login Failed");
         return false;
     }
 
-    // ===================== TABLE HELPERS =====================
+    //  TABLE HELPERS 
     public Object[][] getOrganizersTableData() {
 
         List<Object[]> rows = new ArrayList<>();
@@ -566,7 +562,7 @@ public class Admin {
         return data;
     }
 
-    // ===================== FINDERS =====================
+    //  FINDERS 
     private OrganizerRecord findOrganizer(int id) {
         for (OrganizerRecord o : organizers)
             if (o.id == id) return o;
@@ -579,7 +575,7 @@ public class Admin {
         return null;
     }
 
-    // ===================== INNER CLASSES =====================
+    //  INNER CLASSES 
 
     private static class OrganizerRecord {
         int id;
@@ -683,8 +679,9 @@ public class Admin {
         }
     }
 
-    // ===================== GETTERS =====================
+    //  GETTERS 
     public String getName() { return name; }
     public String getRoleTitle() { return roleTitle; }
     public int getAdminId() { return adminID; }
+
 }
