@@ -6,8 +6,8 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.sql.*;
 import java.net.URI;
-import java.security.SecureRandom; // <--- للباسورد العشوائي
-import java.awt.Desktop;          // لاستخدام Desktop.getDesktop()
+import java.security.SecureRandom; 
+import java.awt.Desktop;        
 
 // LGoodDatePicker
 import com.github.lgooddatepicker.components.DatePicker;
@@ -15,7 +15,7 @@ import com.github.lgooddatepicker.components.TimePicker;
 
 public class AdminDashboardFrame extends JFrame {
 
-    // ================= THEME COLORS =================
+    //  THEME COLORS 
     private static final Color COLOR_BACKGROUND = Color.decode("#FFFADD");
     private static final Color COLOR_DARK_GREEN = Color.decode("#263717");
     private static final Color COLOR_OLIVE      = Color.decode("#74835A");
@@ -28,9 +28,8 @@ public class AdminDashboardFrame extends JFrame {
 
     private JTable organizerTable;
     private JTable eventTable;
-    private JTable adminTable;   // جدول الأدمنز
+    private JTable adminTable;    
 
-    // واجهة التقارير (نمسك نسخة واحدة فقط)
     private ReportFrame reportFrame;
 
     public AdminDashboardFrame(Admin admin) {
@@ -47,7 +46,7 @@ public class AdminDashboardFrame extends JFrame {
         setVisible(true);
     }
 
-    // ======================= RANDOM PASSWORD =======================
+    //  RANDOM PASSWORD 
 
     private String generateRandomPassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -59,13 +58,13 @@ public class AdminDashboardFrame extends JFrame {
         return sb.toString();
     }
 
-    // ======================= LAYOUT =======================
+    //  LAYOUT 
 
     private void initLayout() {
 
         getContentPane().setLayout(new BorderLayout());
 
-        // ---------- TOP BAR ----------
+        //  TOP BAR 
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBackground(COLOR_DARK_GREEN);
         topBar.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
@@ -80,7 +79,7 @@ public class AdminDashboardFrame extends JFrame {
         topBar.add(titleLabel, BorderLayout.WEST);
         getContentPane().add(topBar, BorderLayout.NORTH);
 
-        // ---------- LEFT MENU ----------
+        //  LEFT MENU 
         JPanel menu = new JPanel();
         menu.setBackground(COLOR_DARK_GREEN);
         menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
@@ -112,7 +111,7 @@ public class AdminDashboardFrame extends JFrame {
         menu.add(Box.createVerticalStrut(15));
         menu.add(btnLogout);
 
-        // ---------- MAIN PANEL ----------
+        //  MAIN PANEL 
         cardLayout = new CardLayout();
         mainPanel  = new JPanel(cardLayout);
         mainPanel.setBackground(COLOR_BACKGROUND);
@@ -126,7 +125,7 @@ public class AdminDashboardFrame extends JFrame {
         getContentPane().add(menu, BorderLayout.WEST);
         getContentPane().add(mainPanel, BorderLayout.CENTER);
 
-        // ---------- ACTIONS ----------
+        //  ACTIONS 
         btnOverview.addActionListener(e -> cardLayout.show(mainPanel, "overview"));
 
         btnOrganizers.addActionListener(e -> {
@@ -139,16 +138,13 @@ public class AdminDashboardFrame extends JFrame {
             cardLayout.show(mainPanel, "events");
         });
 
-        // ======= جزء الـ Reports (نسخة واحدة فقط من ReportFrame) =======
         btnReports.addActionListener(e -> {
             try {
-                // لو ما في واجهة تقارير أو مسكّرة -> نفتح جديدة
                 if (reportFrame == null || !reportFrame.isDisplayable()) {
                     reportFrame = new ReportFrame(admin);
                     reportFrame.setLocationRelativeTo(this);
                 }
 
-                // نضمن إنها ظاهرة
                 reportFrame.setVisible(true);
                 reportFrame.toFront();
                 reportFrame.requestFocus();
@@ -177,7 +173,7 @@ public class AdminDashboardFrame extends JFrame {
         });
     }
 
-    // ======================= PANELS =======================
+    //  PANELS 
 
     private JPanel buildOverviewPanel() {
 
@@ -306,7 +302,7 @@ public class AdminDashboardFrame extends JFrame {
         return panel;
     }
 
-    // ======== Admins Panel =========
+    //  Admins Panel 
     private JPanel buildAdminsPanel() {
 
         JPanel panel = new JPanel(new BorderLayout(10, 10));
@@ -352,7 +348,7 @@ public class AdminDashboardFrame extends JFrame {
         return panel;
     }
 
-    // ======================= STYLE HELPERS =======================
+    //  STYLE HELPERS 
 
     private JButton createMenuButton(String text) {
         JButton btn = new JButton(text) {
@@ -433,7 +429,7 @@ public class AdminDashboardFrame extends JFrame {
         }
     }
 
-    // ======================= VALIDATION HELPERS =======================
+    //  VALIDATION HELPERS 
 
     private void showValidationError(String message) {
         JOptionPane.showMessageDialog(
@@ -489,7 +485,7 @@ public class AdminDashboardFrame extends JFrame {
         }
     }
 
-    // ======================= LOADERS =======================
+    //  LOADERS 
 
     private void reloadOrganizersTable() {
         DefaultTableModel model = (DefaultTableModel) organizerTable.getModel();
@@ -589,7 +585,7 @@ public class AdminDashboardFrame extends JFrame {
         }
     }
 
-    // ======================= ACTIONS =======================
+    //  ACTIONS 
 
     private void onAddOrganizer() {
         JTextField tfName  = new JTextField();
@@ -616,7 +612,7 @@ public class AdminDashboardFrame extends JFrame {
             return;
         }
 
-        String generatedPassword = generateRandomPassword();   // باسورد عشوائي
+        String generatedPassword = generateRandomPassword();   
 
         String insertOrgSql = """
                 INSERT INTO organizers (name, email, phone, active, role, password)
@@ -627,7 +623,7 @@ public class AdminDashboardFrame extends JFrame {
              PreparedStatement ps = conn.prepareStatement(insertOrgSql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, name);
-            ps.setString(2, "temp"); // مؤقت
+            ps.setString(2, "temp"); 
             ps.setString(3, phone);
             ps.setBoolean(4, true);
             ps.setString(5, "Organizer");
@@ -978,7 +974,7 @@ public class AdminDashboardFrame extends JFrame {
         }
     }
 
-    // ======== Add Admin (بدون إدخال باسورد) ========
+    //  Add Admin
     private void onAddAdmin() {
 
         JTextField tfName = new JTextField();
@@ -1020,9 +1016,9 @@ public class AdminDashboardFrame extends JFrame {
              PreparedStatement ps = conn.prepareStatement(insertAdminSql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, name);
-            ps.setString(2, "temp");          // مؤقت
+            ps.setString(2, "temp");          
             ps.setString(3, generatedPassword);
-            ps.setBoolean(4, false);          // الإدمن الجديد ليس سوبر أدمن
+            ps.setBoolean(4, false);          
             ps.setString(5, roleTitle);
 
             ps.executeUpdate();
@@ -1079,7 +1075,7 @@ public class AdminDashboardFrame extends JFrame {
         }
     }
 
-    // ======== Super Admin Check ========
+    //  Super Admin Check 
     private boolean checkSuperAdminAccess() {
 
         JTextField tfId = new JTextField();
@@ -1139,7 +1135,7 @@ public class AdminDashboardFrame extends JFrame {
                 JOptionPane.ERROR_MESSAGE);
     }
 
-    // ======================= MAIN =======================
+    //  MAIN 
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -1187,4 +1183,5 @@ public class AdminDashboardFrame extends JFrame {
             }
         });
     }
+
 }
