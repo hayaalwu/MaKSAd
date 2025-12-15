@@ -18,11 +18,11 @@ public class SignUpData {
     private List<String> interests; // JSON
     private List<String> skills;    // JSON
 
-    private final String role = "Volunteer"; // ثابت
+    private final String role = "Volunteer"; 
 
     public SignUpData() {}
 
-    // ---------------- GETTERS ----------------
+    //  GETTERS 
     public String getFullName() { return fullName; }
     public String getEmail() { return email; }
     public String getPhone() { return phone; }
@@ -34,7 +34,7 @@ public class SignUpData {
     public List<String> getSkills() { return skills; }
     public String getRole() { return role; }
 
-    // ---------------- SETTERS ----------------
+    //  SETTERS 
     public void setFullName(String fullName) { this.fullName = fullName; }
     public void setEmail(String email) { this.email = email; }
     public void setPhone(String phone) { this.phone = phone; }
@@ -45,12 +45,10 @@ public class SignUpData {
     public void setInterests(List<String> interests) { this.interests = interests; }
     public void setSkills(List<String> skills) { this.skills = skills; }
 
-    // -------------------------------------------------------
-    //                ⭐ VALIDATION METHOD ⭐
-    // -------------------------------------------------------
+    // VALIDATION METHOD 
     public void validate() {
 
-        // -------- FULL NAME --------
+        //  FULL NAME 
         if (fullName == null || fullName.trim().isEmpty()) {
             throw new IllegalArgumentException("Full name cannot be empty.");
         }
@@ -58,7 +56,7 @@ public class SignUpData {
             throw new IllegalArgumentException("Full name must contain letters only.");
         }
 
-        // -------- EMAIL --------
+        //  EMAIL 
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("Email cannot be empty.");
         }
@@ -66,35 +64,35 @@ public class SignUpData {
             throw new IllegalArgumentException("Email must contain '@' and a valid domain.");
         }
 
-        // -------- PHONE NUMBER --------
+        //  PHONE NUMBER 
         if (phone == null || !phone.matches("^05\\d{8}$")) {
             throw new IllegalArgumentException("Phone number must start with 05 and be 10 digits.");
         }
 
-        // -------- PASSWORD --------
+        //  PASSWORD 
         if (password == null || password.length() < 8) {
             throw new IllegalArgumentException("Password must be at least 8 characters.");
         }
 
-        // -------- DATE OF BIRTH --------
+        //  DATE OF BIRTH 
         if (dateOfBirth == null ||
                 !Pattern.matches("^\\d{4}-\\d{2}-\\d{2}$", dateOfBirth)) {
             throw new IllegalArgumentException("Date of birth must be in format YYYY-MM-DD.");
         }
 
-        // -------- GENDER --------
+        //  GENDER 
         if (gender == null ||
                 !(gender.equalsIgnoreCase("Male") ||
                   gender.equalsIgnoreCase("Female"))) {
             throw new IllegalArgumentException("Gender must be Male or Female.");
         }
 
-        // -------- PREFERRED TYPE --------
+        //  PREFERRED TYPE 
         if (preferredType == null || preferredType.trim().isEmpty()) {
             throw new IllegalArgumentException("Preferred type must be selected.");
         }
 
-        // ❌ interests/skills NOT validated here (تنتقل للخطوة 2)
+        // interests/skills NOT validated here 
     }
 
     @Override
@@ -111,4 +109,5 @@ public class SignUpData {
                 ", role='" + role + '\'' +
                 '}';
     }
+
 }
