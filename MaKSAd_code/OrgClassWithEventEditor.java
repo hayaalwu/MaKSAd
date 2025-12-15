@@ -160,6 +160,8 @@ public class OrgClassWithEventEditor extends JFrame {
             this.description = desc;
         }
     }
+    
 }
+
 
 
