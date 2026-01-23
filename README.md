@@ -42,7 +42,7 @@ The application demonstrates practical skills in:
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Language:** Java (OOP)
 - **GUI:** Java Swing
@@ -71,7 +71,7 @@ The application demonstrates practical skills in:
 
 ---
 
-## 📌 Notes
+## Notes
 
 - Developed as a **Software Engineering course project**
 - Implements practical SWE concepts + full UI + DB integration
