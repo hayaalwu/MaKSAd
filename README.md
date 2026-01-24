@@ -88,11 +88,11 @@ The application demonstrates practical skills in:
 ### Admin Dashboard
 ![Admin Dashboard](MaKSAd_UI/Admin_dash.png)
 
-### Event Dashboard
-![Event Dashboard](MaKSAd_UI/Event_dash.png)
+### Organizer Dashboard
+![Organizer Dashboard](MaKSAd_UI/Event_dash.png)
 
-### Event Info
-![Event Info](MaKSAd_UI/Event_info.png)
+### Event Details
+![Event Details](MaKSAd_UI/Event_info.png)
 
 ### Volunteer Dashboard
 ![Volunteer Dashboard](MaKSAd_UI/Volunteer_dash.png)
