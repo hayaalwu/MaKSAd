@@ -97,6 +97,9 @@ The application demonstrates practical skills in:
 ### Volunteer Dashboard
 ![Volunteer Dashboard](MaKSAd_UI/Volunteer_dash.png)
 
+### Certificate View
+![Certificate View](MaKSAd_UI/Certificate.png)
+
 ### Reports Overview
 ![Reports Overview](MaKSAd_UI/Reports.png)
 
