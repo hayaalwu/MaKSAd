@@ -6,7 +6,7 @@ The system was implemented using **Java Swing** (GUI) and **MySQL**, and follows
 
 ---
 
-## Purpose & Scope (Software Engineering Context)
+## Purpose & Scope
 
 The goal of the project was to design a system that allows organizations to:
 
