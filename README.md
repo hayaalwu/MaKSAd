@@ -73,7 +73,28 @@ The application demonstrates practical skills in:
 
 ## Notes
 
-- Developed as a **Software Engineering course project**
-- Implements practical SWE concepts + full UI + DB integration
-- The project was developed collaboratively as a team, with responsibilities distributed across system modules, UI components, database design, and class implementations.
+- Built as a **Software Engineering course project**
+- Includes full UI + database integration
+- Developed collaboratively as a team
+
+---
+
+## UI Preview
+> Note: The screenshots below represent a subset of the system’s interfaces.
+
+### MaKSAd Welcome Message
+![Welcome Screen](MaKSAd_UI/MaKSAd_welcome_message.png)
+
+### Admin Dashboard
+![Admin Dashboard](MaKSAd_UI/Admin_dash.png)
+
+### Event Dashboard
+![Event Dashboard](MaKSAd_UI/Event_dash.png)
+
+### Event Info
+![Event Info](MaKSAd_UI/Event_info.png)
+
+### Volunteer Dashboard
+![Volunteer Dashboard](MaKSAd_UI/Volunteer_dash.png)
+
 
