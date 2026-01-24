@@ -55,7 +55,7 @@ The application demonstrates practical skills in:
 ## Project Structure
 
 - `MaKSAdCode_Updated/`  
-  Updated Java source code (frames, classes, and forms)
+  Updated Java source code
 
 - `MaKSAd_DB/`  
   Database assets / scripts (MySQL)
@@ -65,7 +65,10 @@ The application demonstrates practical skills in:
 
 - `MaKSAd_PH/`  
   UI placeholders and other graphical assets
-
+    
+- `MaKSAd_UI/`
+  UI screenshots for preview
+    
 - `MaKSAd_logo.jpeg`, `Text.png`  
   App logo and branding assets
 
